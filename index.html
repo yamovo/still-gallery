@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STILL - Visual Archive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/animejs@4.4.1/dist/bundles/anime.umd.min.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <canvas id="particles" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></canvas>
+
+  <div class="scroll-progress" id="scrollProgress"></div>
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <div class="loader" id="loader">
+    <div class="loader-text" id="loaderText"></div>
+    <div class="loader-bar"><div class="loader-bar-fill" id="loaderFill"></div></div>
+  </div>
+
+  <nav class="nav">
+    <div class="nav-logo">STILL</div>
+    <div class="nav-links">
+      <a class="nav-link magnetic" href="#work">Work</a>
+      <a class="nav-link magnetic" href="#archive">Archive</a>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-content">
+      <p class="hero-eyebrow">Visual Archive - Est. 2026</p>
+      <h1 id="heroTitle">Captured<br><em>Moments</em></h1>
+      <p class="hero-sub">A curated collection of still images</p>
+    </div>
+    <div class="cube-wrap">
+      <div class="cube" id="cube">
+        <div class="cube-face"></div><div class="cube-face"></div>
+        <div class="cube-face"></div><div class="cube-face"></div>
+        <div class="cube-face"></div><div class="cube-face"></div>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <span>Scroll</span>
+      <div class="scroll-mouse"></div>
+    </div>
+  </section>
+
+  <div class="marquee">
+    <div class="marquee-inner" id="marqueeInner"></div>
+  </div>
+
+  <section class="featured" id="featured"></section>
+
+  <section class="h-section" id="work">
+    <div class="h-header">
+      <h2>Recent <em>Archive</em></h2>
+      <span class="h-count" id="hCount"></span>
+    </div>
+    <div class="h-track" id="hTrack"></div>
+  </section>
+
+  <section class="masonry-section" id="archive">
+    <div class="masonry-title">Full <em>Collection</em></div>
+    <div class="masonry" id="masonry"></div>
+  </section>
+
+  <footer>
+    <span>&copy; 2026 STILL</span>
+    <span>Built with Passion</span>
+  </footer>
+
+  <div class="lightbox" id="lightbox">
+    <button class="lb-close magnetic" onclick="closeLB()">&#10005;</button>
+    <button class="lb-nav lb-prev magnetic" onclick="navLB(-1)">&#8249;</button>
+    <img class="lb-img" id="lbImg" src="" alt="">
+    <button class="lb-nav lb-next magnetic" onclick="navLB(1)">&#8250;</button>
+    <div class="lb-info">
+      <div class="lb-title" id="lbTitle"></div>
+      <div class="lb-counter" id="lbCounter"></div>
+    </div>
+  </div>
+
+  <script src="js/particles.js"></script>
+  <script src="js/animations.js"></script>
+  <script src="js/gallery.js"></script>
+</body>
+</html>

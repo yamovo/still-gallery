@@ -1,0 +1,11 @@
+{
+  "name": "still-gallery",
+  "version": "1.0.0",
+  "description": "STILL - A visual archive image gallery with cinematic animations",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": ["gallery", "image", "portfolio", "animejs", "masonry"],
+  "license": "MIT"
+}
