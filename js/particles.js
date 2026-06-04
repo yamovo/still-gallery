@@ -39,6 +39,12 @@
         mouseY = -9999;
       });
 
+      var running = true;
+      document.addEventListener('visibilitychange', function() {
+        running = !document.hidden;
+        if (running) requestAnimationFrame(draw);
+      });
+
       function draw() {
         ctx.clearRect(0, 0, W, H);
         ctx.shadowBlur = 8;
@@ -97,7 +103,7 @@
           }
         }
 
-        requestAnimationFrame(draw);
+        if (running) requestAnimationFrame(draw);
       }
       draw();
     })();

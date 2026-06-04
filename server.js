@@ -30,11 +30,20 @@ const server = http.createServer((req, res) => {
       const files = fs.readdirSync(imgDir)
         .filter(f => IMG_RE.test(f))
         .sort();
-      const list = files.map(f => ({
-        src: 'images/' + encodeURIComponent(f),
-        title: '',
-        category: ''
-      }));
+      // Load optional metadata from images/images.json
+      let meta = {};
+      try {
+        const raw = fs.readFileSync(path.join(imgDir, 'images.json'), 'utf-8');
+        JSON.parse(raw).forEach(m => { if (m.file) meta[m.file] = m; });
+      } catch {}
+      const list = files.map(f => {
+        const m = meta[f] || {};
+        return {
+          src: 'images/' + encodeURIComponent(f),
+          title: m.title || path.parse(f).name,
+          category: m.category || ''
+        };
+      });
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(list));
     } catch {

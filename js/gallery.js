@@ -158,7 +158,7 @@ var images = [];
         }
       });
     }
-    function navLB(d) {
+    function navLB(d, e) {
       var lbImg = document.querySelector('.lb-img');
       lbImg.style.transformOrigin = '50% 50%';
       anime.animate(lbImg, {
@@ -178,7 +178,7 @@ var images = [];
           });
         }
       });
-      event.stopPropagation();
+      if (e) e.stopPropagation();
     }
     function updateLB() {
       document.getElementById('lbImg').src = images[curIdx].src;
