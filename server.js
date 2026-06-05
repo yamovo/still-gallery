@@ -6,7 +6,7 @@ const { marked } = require('marked');
 // Configure marked for safe rendering
 marked.setOptions({ breaks: true, gfm: true });
 
-const PORT = 3456;
+const PORT = process.env.PORT || 3456;
 const ROOT = __dirname;
 
 const MIME = {
