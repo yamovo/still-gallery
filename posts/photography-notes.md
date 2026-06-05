@@ -2,7 +2,7 @@
 title: "摄影笔记：捕捉光线"
 date: "2026-06-03"
 excerpt: "关于拍摄时如何观察光线的一些心得，从自然光到城市灯光。"
-category: "摄影"
+category: "创作"
 cover: "/images/file_0000000046c471faa7be0abb384a5c3d.png"
 ---
 

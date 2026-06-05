@@ -2,7 +2,7 @@
 title: "Hello, World"
 date: "2026-06-01"
 excerpt: "第一篇博客文章，聊聊为什么要做这个网站，以及后面打算写些什么。"
-category: "随笔"
+category: "创作"
 cover: ""
 ---
 
