@@ -1,31 +1,74 @@
-// Loader scramble animation
+// Loader (anime.js timeline with scramble)
 (function() {
   var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
   var target = 'READING';
   var el = document.getElementById('loaderText');
-  var fill = document.getElementById('loaderFill');
-  var i = 0;
-  function scramble() {
-    var out = '';
-    for (var j = 0; j < target.length; j++) {
-      if (j < i) out += target[j];
-      else out += chars[Math.floor(Math.random() * chars.length)];
-    }
-    el.textContent = out;
-    if (i < target.length) {
-      i += 0.25;
-      fill.style.width = (i / target.length * 100) + '%';
-      requestAnimationFrame(scramble);
-    } else {
-      fill.style.width = '100%';
-      setTimeout(function() {
-        var loader = document.getElementById('loader');
-        loader.style.opacity = '0';
-        loader.style.pointerEvents = 'none';
-      }, 300);
-    }
+  var spans = [];
+  for (var i = 0; i < target.length; i++) {
+    var s = document.createElement('span');
+    s.textContent = chars[Math.random() * chars.length | 0];
+    s.style.display = 'inline-block';
+    s.style.opacity = '0';
+    s.style.transform = 'translateY(20px)';
+    el.appendChild(s);
+    spans.push(s);
   }
-  scramble();
+
+  var t = { v: 0 };
+  var tick = 0;
+  var revealed = {};
+
+  var loaderTl = anime.createTimeline({
+    onComplete: function() {
+      anime.animate('#loader', {
+        opacity: 0,
+        duration: 400,
+        ease: 'outQuad',
+        onComplete: function() {
+          document.getElementById('loader').style.display = 'none';
+        }
+      });
+    }
+  });
+
+  loaderTl
+    .add(spans, {
+      translateY: [20, 0],
+      opacity: [0, 1],
+      duration: 400,
+      delay: anime.stagger(60),
+      ease: 'outQuad'
+    })
+    .add(t, {
+      v: 1,
+      duration: 1500,
+      ease: 'outQuad',
+      onUpdate: function() {
+        tick++;
+        var n = Math.floor(t.v * target.length);
+        for (var k = 0; k < spans.length; k++) {
+          if (k < n) {
+            if (!revealed[k]) {
+              revealed[k] = true;
+              spans[k].textContent = target[k];
+            }
+          } else if (tick % 6 === 0) {
+            spans[k].textContent = chars[Math.random() * chars.length | 0];
+          }
+        }
+      }
+    }, '-=200')
+    .add('#loaderFill', {
+      width: '100%',
+      duration: 1200,
+      ease: 'inOutQuad'
+    }, '-=1500')
+    .add(spans, {
+      translateY: -20,
+      opacity: 0,
+      duration: 300,
+      delay: anime.stagger(40)
+    }, '+=200');
 })();
 
 // Get slug from URL
@@ -73,7 +116,7 @@ function renderPost(post) {
           opacity: [0, 1],
           scale: [0.95, 1],
           duration: 300,
-          easing: 'easeOutCubic'
+          ease: 'outCubic'
         });
       });
     });
@@ -124,59 +167,121 @@ function renderPost(post) {
       nav.innerHTML = html;
     });
 
-  // Fade in content
+  // Fade in content with staggered elements
   anime.animate('#postArticle', {
     opacity: [0, 1],
     translateY: [20, 0],
     duration: 600,
     delay: 800,
-    easing: 'easeOutCubic'
+    ease: 'outCubic'
   });
+
+  // Title text split reveal
+  var titleEl = document.querySelector('.post-title');
+  if (titleEl) {
+    var titleText = titleEl.textContent;
+    titleEl.innerHTML = '';
+    var titleSpans = [];
+    titleText.split('').forEach(function(ch) {
+      var s = document.createElement('span');
+      s.textContent = ch === ' ' ? ' ' : ch;
+      s.style.display = 'inline-block';
+      s.style.opacity = '0';
+      s.style.transform = 'translateY(30px) rotateX(40deg)';
+      titleEl.appendChild(s);
+      titleSpans.push(s);
+    });
+    anime.animate(titleSpans, {
+      opacity: [0, 1],
+      translateY: [30, 0],
+      rotateX: [40, 0],
+      duration: 700,
+      delay: anime.stagger(25, { start: 900 }),
+      ease: 'outCubic'
+    });
+  }
+
+  // Cover image reveal
+  var coverWrap = document.getElementById('postCoverWrap');
+  if (coverWrap && coverWrap.style.display !== 'none') {
+    anime.animate(coverWrap, {
+      opacity: [0, 1],
+      scale: [1.05, 1],
+      duration: 800,
+      delay: 1200,
+      ease: 'outCubic'
+    });
+  }
+
+  // Post nav stagger reveal
+  setTimeout(function() {
+    anime.animate('.post-nav-link', {
+      opacity: [0, 1],
+      translateY: [20, 0],
+      duration: 500,
+      delay: anime.stagger(150),
+      ease: 'outQuad'
+    });
+  }, 1500);
 }
 
-// Scroll progress
+// Scroll progress (anime.js animatable)
 (function() {
   var bar = document.getElementById('scrollProgress');
+  var barAnim = anime.createAnimatable(bar, {
+    width: { unit: '%' },
+    duration: 150
+  });
   window.addEventListener('scroll', function() {
     var h = document.documentElement.scrollHeight - window.innerHeight;
-    bar.style.width = h > 0 ? (window.scrollY / h * 100) + '%' : '0';
+    barAnim.width(h > 0 ? (window.scrollY / h * 100) : 0);
   });
 })();
 
-// Lightbox close
+// Lightbox close (anime.js animated)
 (function() {
   var lb = document.getElementById('postLightbox');
-  document.getElementById('postLbClose').addEventListener('click', function() {
-    lb.classList.remove('active');
-    document.body.style.overflow = '';
-  });
+  function closeLB() {
+    var lbImg = document.getElementById('postLbImg');
+    anime.animate(lbImg, {
+      opacity: [1, 0],
+      scale: [1, 0.95],
+      duration: 250,
+      ease: 'inCubic',
+      onComplete: function() {
+        lb.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+    });
+  }
+  document.getElementById('postLbClose').addEventListener('click', closeLB);
   lb.addEventListener('click', function(e) {
-    if (e.target === e.currentTarget) {
-      lb.classList.remove('active');
-      document.body.style.overflow = '';
-    }
+    if (e.target === e.currentTarget) closeLB();
   });
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && lb.classList.contains('active')) {
-      lb.classList.remove('active');
-      document.body.style.overflow = '';
-    }
+    if (e.key === 'Escape' && lb.classList.contains('active')) closeLB();
   });
 })();
 
-// Magnetic hover
-(function() {
-  document.querySelectorAll('.magnetic').forEach(function(el) {
-    el.addEventListener('mousemove', function(e) {
-      var rect = el.getBoundingClientRect();
-      var x = e.clientX - rect.left - rect.width / 2;
-      var y = e.clientY - rect.top - rect.height / 2;
-      el.style.transform = 'translate(' + (x * 0.3) + 'px, ' + (y * 0.3) + 'px)';
-    });
-    el.addEventListener('mouseleave', function() {
-      el.style.transform = 'translate(0, 0)';
-      el.style.transition = 'transform 0.5s ease';
-      setTimeout(function() { el.style.transition = ''; }, 500);
+// Magnetic hover (anime.js)
+document.querySelectorAll('.magnetic').forEach(function(el) {
+  el.addEventListener('mousemove', function(e) {
+    var rect = el.getBoundingClientRect();
+    var dx = (e.clientX - rect.left - rect.width / 2) * 0.3;
+    var dy = (e.clientY - rect.top - rect.height / 2) * 0.3;
+    anime.animate(el, {
+      translateX: dx,
+      translateY: dy,
+      duration: 200,
+      ease: 'outQuad'
     });
   });
-})();
+  el.addEventListener('mouseleave', function() {
+    anime.animate(el, {
+      translateX: 0,
+      translateY: 0,
+      duration: 400,
+      ease: 'outElastic(1, 0.5)'
+    });
+  });
+});

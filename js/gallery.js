@@ -54,7 +54,153 @@ var images = [];
           masonry.appendChild(item);
         });
         bindHoverEffects();
+        renderFloat3D();
       }
+    }
+
+    // RENDER FLOATING 3D SHOWCASE
+    // ========================================
+    function renderFloat3D() {
+      var section = document.getElementById('float3d');
+      var floatImages = images.filter(function(img) { return img.category !== 'Meme'; });
+      if (!section || floatImages.length === 0) return;
+
+      // Build the immersive structure
+      section.innerHTML =
+        '<canvas class="float3d-particles" id="float3dParticles"></canvas>' +
+        '<div class="float3d-scene"><div class="float3d-header"><div class="float3d-title">Floating <em>Showcase</em></div><div class="float3d-subtitle">Move your cursor to explore</div></div><div class="float3d-stage" id="float3dStage"></div></div>';
+
+      var stage = document.getElementById('float3dStage');
+
+      // Physics-based layout — scatter then settle with collision resolution
+      var count = floatImages.length;
+      var stageRect = stage.getBoundingClientRect();
+      var stageW = stageRect.width || 1400;
+      var stageH = stageRect.height || 600;
+      var seed = 73;
+      function sr() { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }
+
+      // Card sizes — will be set per-image after loading
+      var maxW = 260, maxH = 350, minW = 160, minH = 200;
+      var cardSizes = [];
+      for (var si = 0; si < count; si++) {
+        cardSizes.push({ w: maxW, h: maxH }); // placeholder
+      }
+
+      // Load images to get natural aspect ratios, then scale cards
+      var loaded = 0;
+      floatImages.forEach(function(img, i) {
+        var im = new Image();
+        im.onload = function() {
+          var ratio = im.naturalWidth / im.naturalHeight;
+          var w, h;
+          if (ratio >= 1) { w = maxW; h = Math.round(w / ratio); if (h < minH) { h = minH; w = Math.round(h * ratio); } }
+          else { h = maxH; w = Math.round(h * ratio); if (w < minW) { w = minW; h = Math.round(w / ratio); } }
+          cardSizes[i] = { w: w, h: h };
+          loaded++;
+          if (loaded === count) buildFloat3DLayout();
+        };
+        im.onerror = function() { loaded++; if (loaded === count) buildFloat3DLayout(); };
+        im.src = img.src;
+      });
+
+      function buildFloat3DLayout() {
+
+      // Random initial positions (pixel coords)
+      var placed = [];
+      for (var i = 0; i < count; i++) {
+        var cw = cardSizes[i].w, ch = cardSizes[i].h;
+        placed.push({
+          x: sr() * (stageW - cw) + cw / 2,
+          y: sr() * (stageH - ch) + ch / 2,
+          w: cw, h: ch,
+          vx: 0, vy: 0
+        });
+      }
+
+      // Iterative collision resolution
+      var pad = 20;
+      for (var iter = 0; iter < 80; iter++) {
+        for (var a = 0; a < count; a++) {
+          for (var b = a + 1; b < count; b++) {
+            var dx = placed[b].x - placed[a].x;
+            var dy = placed[b].y - placed[a].y;
+            var minDx = (placed[a].w + placed[b].w) / 2 + pad;
+            var minDy = (placed[a].h + placed[b].h) / 2 + pad;
+            var overlapX = minDx - Math.abs(dx);
+            var overlapY = minDy - Math.abs(dy);
+            if (overlapX > 0 && overlapY > 0) {
+              // Push apart along the axis of least overlap
+              if (overlapX < overlapY) {
+                var push = overlapX / 2 + 1;
+                var dir = dx >= 0 ? 1 : -1;
+                placed[a].x -= push * dir;
+                placed[b].x += push * dir;
+              } else {
+                var push2 = overlapY / 2 + 1;
+                var dir2 = dy >= 0 ? 1 : -1;
+                placed[a].y -= push2 * dir2;
+                placed[b].y += push2 * dir2;
+              }
+            }
+          }
+        }
+        // Gentle pull toward center to prevent cards flying off
+        for (var c = 0; c < count; c++) {
+          placed[c].x += (stageW / 2 - placed[c].x) * 0.015;
+          placed[c].y += (stageH / 2 - placed[c].y) * 0.015;
+          // Clamp to stage
+          var hw = placed[c].w / 2, hh = placed[c].h / 2;
+          placed[c].x = Math.max(hw + 30, Math.min(stageW - hw - 30, placed[c].x));
+          placed[c].y = Math.max(hh + 30, Math.min(stageH - hh - 30, placed[c].y));
+        }
+      }
+
+      // Convert to percentage positions and build final layout
+      var positions = [];
+      for (var j = 0; j < count; j++) {
+        positions.push({
+          left: (placed[j].x / stageW) * 100,
+          top: (placed[j].y / stageH) * 100,
+          z: 60 + sr() * 80,
+          ry: (sr() - 0.5) * 20,
+          rx: (sr() - 0.5) * 10
+        });
+      }
+      positions.sort(function(a, b) { return b.z - a.z; });
+
+      floatImages.forEach(function(img, i) {
+        var pos = positions[i];
+        var w = cardSizes[i].w;
+        var h = cardSizes[i].h;
+
+        var card = document.createElement('div');
+        card.className = 'float3d-card';
+        card.setAttribute('data-title', img.title || '');
+        card.setAttribute('data-depth', pos.z);
+        card.style.left = 'calc(' + pos.left + '% - ' + (w / 2) + 'px)';
+        card.style.top = 'calc(' + pos.top + '% - ' + (h / 2) + 'px)';
+        card.style.width = w + 'px';
+        card.style.height = h + 'px';
+
+        card.innerHTML =
+          '<div class="float3d-card-inner">' +
+            '<div class="float3d-glow"></div>' +
+            '<img src="' + img.src + '" alt="' + (img.title||'') + '" loading="lazy" onerror="this.style.opacity=0.2">' +
+            '<div class="float3d-shine"></div>' +
+          '</div>' +
+          '<div class="float3d-label">' + (img.title || '') + '</div>';
+
+        card._baseRY = pos.ry;
+        card._baseRX = pos.rx;
+        card._baseZ = pos.z;
+        card._phase = i * 0.9;
+
+        var globalIdx = images.indexOf(img);
+        card.onclick = function(e) { if (card._justDragged) return; lbClickX = e.clientX; lbClickY = e.clientY; openLB(globalIdx); };
+        stage.appendChild(card);
+      });
+      } // end buildFloat3DLayout
     }
 
     // RENDER WRITING TRACK
@@ -132,37 +278,55 @@ var images = [];
       });
     }
 
+    var filterAnim = null;
     function filterByCategory(cat) {
       activeCategory = cat;
+      // Cancel any running filter animation
+      if (filterAnim) { filterAnim.pause(); filterAnim = null; }
       // Update pill active state
       document.querySelectorAll('.filter-pill').forEach(function(p) {
         p.classList.toggle('active', p.getAttribute('data-cat') === cat);
       });
+      // Immediately reset all items
+      document.querySelectorAll('.m-item').forEach(function(item) {
+        item.style.opacity = '';
+        item.style.transform = '';
+        item.style.display = '';
+      });
       // Filter masonry items
+      var showItems = [];
+      var hideItems = [];
       document.querySelectorAll('.m-item').forEach(function(item) {
         var itemCat = item.getAttribute('data-category') || 'Uncategorized';
         if (cat === 'all' || itemCat === cat) {
-          item.style.display = '';
-          anime.animate(item, { opacity: [0, 1], scale: [0.95, 1], duration: 400, easing: 'easeOutQuad' });
+          showItems.push(item);
         } else {
-          anime.animate(item, {
-            opacity: [1, 0],
-            scale: [1, 0.95],
-            duration: 300,
-            easing: 'easeInQuad',
-            onComplete: function() { item.style.display = 'none'; }
-          });
+          hideItems.push(item);
         }
       });
+      // Instantly hide
+      hideItems.forEach(function(el) { el.style.display = 'none'; });
+      // Animate show
+      if (showItems.length) {
+        filterAnim = anime.animate(showItems, {
+          opacity: [0, 1],
+          scale: [0.95, 1],
+          translateY: [10, 0],
+          duration: 350,
+          ease: 'outQuad',
+          delay: anime.stagger(40)
+        });
+      }
     }
 // DRAG SCROLL — Reusable, optimized (rAF batch + velocity smoothing)
     // ========================================
     function initDragScroll(el) {
-      var isDown = false, startX, scrollLeft, velX = 0, lastX = 0, lastTime = 0, rafId = null;
+      var isDown = false, isDragging = false, startX, scrollLeft, velX = 0, lastX = 0, lastTime = 0, rafId = null;
       var pendingScroll = null, moveRafId = null;
 
       function ptrDown(e) {
         isDown = true;
+        isDragging = false;
         startX = e.pageX - el.offsetLeft;
         scrollLeft = el.scrollLeft;
         velX = 0; lastX = startX; lastTime = Date.now();
@@ -170,12 +334,16 @@ var images = [];
         if (moveRafId) { cancelAnimationFrame(moveRafId); moveRafId = null; }
         el.style.cursor = 'grabbing';
         el.style.userSelect = 'none';
-        el.style.pointerEvents = 'none';
       }
       function ptrMove(e) {
         if (!isDown) return;
-        e.preventDefault();
         var x = e.pageX - el.offsetLeft;
+        if (!isDragging && Math.abs(x - startX) > 5) {
+          isDragging = true;
+          el.style.pointerEvents = 'none';
+        }
+        if (!isDragging) return;
+        e.preventDefault();
         var now = Date.now(), dt = now - lastTime;
         if (dt > 0) {
           var instantVel = (x - lastX) / dt * 16;
@@ -198,7 +366,7 @@ var images = [];
         isDown = false;
         el.style.cursor = 'grab';
         el.style.userSelect = '';
-        setTimeout(function() { el.style.pointerEvents = ''; }, 60);
+        if (isDragging) setTimeout(function() { el.style.pointerEvents = ''; }, 60);
         var friction = 0.95;
         function decel() {
           if (Math.abs(velX) < 0.5) return;
@@ -219,6 +387,57 @@ var images = [];
 
     // Init drag scroll for archive track
     initDragScroll(document.getElementById('hTrack'));
+
+    // MUSIC CONTROL
+    // ========================================
+    var lbAudio = document.getElementById('lbAudio');
+    var lbMuteBtn = document.getElementById('lbMute');
+    var lbMuteWaves = document.getElementById('lbMuteWaves');
+    var musicMuted = false;
+    var currentAudioCat = ''; // track which category's audio is playing
+
+    // Category → audio file mapping
+    var categoryAudioMap = {
+      'man': 'See You Again.m4a',
+      'grand F': '念张师.m4a'
+    };
+
+    function toggleMute() {
+      musicMuted = !musicMuted;
+      if (lbAudio) lbAudio.muted = musicMuted;
+      if (lbMuteBtn) lbMuteBtn.classList.toggle('muted', musicMuted);
+      if (lbMuteWaves) lbMuteWaves.style.display = musicMuted ? 'none' : '';
+    }
+
+    function playAudioForImage(idx) {
+      if (!lbAudio) return;
+      var img = images[idx];
+      var cat = img ? img.category : '';
+      var audioFile = '';
+
+      // Priority: per-image audio > per-category audio
+      if (img && img.audio) {
+        audioFile = 'audio/' + img.audio;
+      } else if (cat && categoryAudioMap[cat]) {
+        audioFile = 'audio/' + categoryAudioMap[cat];
+      }
+
+      if (audioFile) {
+        // Same category audio already playing? Don't interrupt
+        if (currentAudioCat === cat && !lbAudio.paused) return;
+        currentAudioCat = cat;
+        lbAudio.src = audioFile;
+        if (!musicMuted) { lbAudio.currentTime = 0; lbAudio.play().catch(function(){}); }
+      } else {
+        // Different category with no audio — stop
+        if (currentAudioCat !== cat) {
+          lbAudio.pause();
+          lbAudio.src = '';
+          currentAudioCat = '';
+        }
+      }
+    }
+
 // 7. LIGHTBOX - SCALE FROM CLICK POSITION
     // ========================================
     function openLB(i) {
@@ -227,60 +446,90 @@ var images = [];
       lb.classList.add('active');
       document.body.style.overflow = 'hidden';
 
+      // Play music
+      playAudioForImage(curIdx);
+
       var lbImg = document.querySelector('.lb-img');
-      // Set transform origin to click position
+      lbImg.style.opacity = '1';
+      lbImg.style.transform = '';
       var ox = (lbClickX / window.innerWidth * 100);
       var oy = (lbClickY / window.innerHeight * 100);
-      lbImg.style.transformOrigin = ox + '% ' + oy + '%';
+      lbImg.style.setProperty('--lb-x', ox + '%');
+      lbImg.style.setProperty('--lb-y', oy + '%');
+      lbImg.classList.remove('lb-reveal');
 
-      anime.animate(lbImg, {
+      // Force reflow then trigger circle reveal
+      requestAnimationFrame(function() {
+        lbImg.classList.add('lb-reveal');
+      });
+
+      anime.animate('.lb-close, .lb-nav', {
         opacity: [0, 1],
-        scale: [0.3, 1],
-        duration: 500,
-        easing: 'easeOutCubic'
+        scale: [0.5, 1],
+        duration: 400,
+        delay: anime.stagger(80, { start: 300 }),
+        ease: 'outBack'
       });
       anime.animate('.lb-info', {
         opacity: [0, 1],
-        translateY: [20, 0],
-        duration: 400,
-        delay: 200,
-        easing: 'easeOutQuad'
+        translateY: [30, 0],
+        duration: 500,
+        delay: 400,
+        ease: 'outCubic'
       });
     }
     function closeLB() {
+      // Pause music
+      if (lbAudio) lbAudio.pause();
+
       var lbImg = document.querySelector('.lb-img');
       var ox = (lbClickX / window.innerWidth * 100);
       var oy = (lbClickY / window.innerHeight * 100);
-      lbImg.style.transformOrigin = ox + '% ' + oy + '%';
+      lbImg.style.setProperty('--lb-x', ox + '%');
+      lbImg.style.setProperty('--lb-y', oy + '%');
+
+      function cleanup() {
+        lbImg.classList.remove('lb-reveal');
+        lbImg.style.opacity = '';
+        lbImg.style.transform = '';
+        lbImg.style.scale = '';
+        document.getElementById('lightbox').classList.remove('active');
+        document.body.style.overflow = '';
+      }
 
       anime.animate(lbImg, {
         opacity: [1, 0],
-        scale: [1, 0.3],
-        duration: 350,
-        easing: 'easeInCubic',
-        onComplete: function() {
-          document.getElementById('lightbox').classList.remove('active');
-          document.body.style.overflow = '';
-        }
+        scale: [1, 1.05],
+        duration: 300,
+        ease: 'inCubic',
+        onComplete: cleanup
+      });
+      anime.animate('.lb-close, .lb-nav, .lb-info', {
+        opacity: [1, 0],
+        duration: 200,
+        ease: 'inQuad'
       });
     }
     function navLB(d, e) {
       var lbImg = document.querySelector('.lb-img');
-      lbImg.style.transformOrigin = '50% 50%';
+      var dir = d > 0 ? -1 : 1;
       anime.animate(lbImg, {
         opacity: [1, 0],
-        translateX: d > 0 ? [0, -40] : [0, 40],
-        scale: [1, 0.95],
-        duration: 200,
-        easing: 'easeInQuad',
+        translateX: [0, dir * 60],
+        scale: [1, 0.92],
+        rotateY: dir * 5,
+        duration: 250,
+        ease: 'inCubic',
         onComplete: function() {
           curIdx = (curIdx + d + images.length) % images.length; updateLB();
+          playAudioForImage(curIdx);
           anime.animate(lbImg, {
             opacity: [0, 1],
-            translateX: d > 0 ? [40, 0] : [-40, 0],
-            scale: [0.95, 1],
-            duration: 300,
-            easing: 'easeOutQuad'
+            translateX: [dir * -60, 0],
+            scale: [0.92, 1],
+            rotateY: [dir * -5, 0],
+            duration: 350,
+            ease: 'outCubic'
           });
         }
       });

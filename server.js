@@ -112,27 +112,53 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  // API: return image list from images/ folder
+  // API: return image list from images/ folder (subfolder = category)
   if (req.url === '/api/images') {
     const imgDir = path.join(ROOT, 'images');
     try {
-      const files = fs.readdirSync(imgDir)
-        .filter(f => IMG_RE.test(f))
-        .sort();
-      // Load optional metadata from images/images.json
+      // Load optional metadata from images/images.json (title overrides only)
       let meta = {};
       try {
         const raw = fs.readFileSync(path.join(imgDir, 'images.json'), 'utf-8');
         JSON.parse(raw).forEach(m => { if (m.file) meta[m.file] = m; });
       } catch {}
-      const list = files.map(f => {
+
+      const list = [];
+
+      function makeEntry(f, src, cat) {
         const m = meta[f] || {};
-        return {
-          src: 'images/' + encodeURIComponent(f),
+        const entry = {
+          src: src,
           title: m.title || path.parse(f).name,
-          category: m.category || ''
+          category: cat
         };
-      });
+        if (m.audio) entry.audio = m.audio;
+        return entry;
+      }
+
+      // 1. Root-level images (no category)
+      fs.readdirSync(imgDir)
+        .filter(f => IMG_RE.test(f))
+        .sort()
+        .forEach(f => {
+          list.push(makeEntry(f, 'images/' + encodeURIComponent(f), ''));
+        });
+
+      // 2. Subfolder images (folder name = category)
+      fs.readdirSync(imgDir, { withFileTypes: true })
+        .filter(d => d.isDirectory())
+        .forEach(d => {
+          const subDir = path.join(imgDir, d.name);
+          try {
+            fs.readdirSync(subDir)
+              .filter(f => IMG_RE.test(f))
+              .sort()
+              .forEach(f => {
+                list.push(makeEntry(f, 'images/' + encodeURIComponent(d.name) + '/' + encodeURIComponent(f), d.name));
+              });
+          } catch {}
+        });
+
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(list));
     } catch {
@@ -220,8 +246,17 @@ const server = http.createServer((req, res) => {
 
   fs.readFile(filePath, (err, data) => {
     if (err) {
-      res.writeHead(404);
-      res.end('404 Not Found');
+      // Serve custom 404 page
+      const notFoundPath = path.join(ROOT, '404.html');
+      fs.readFile(notFoundPath, (err2, data2) => {
+        if (err2) {
+          res.writeHead(404);
+          res.end('404 Not Found');
+          return;
+        }
+        res.writeHead(404, { 'Content-Type': 'text/html' });
+        res.end(data2);
+      });
       return;
     }
     const ext = path.extname(filePath).toLowerCase();

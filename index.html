@@ -37,6 +37,7 @@
   <section class="hero">
     <div class="hero-bg"></div>
     <div class="hero-grid"></div>
+    <canvas class="hero-canvas" id="heroCanvas"></canvas>
     <div class="hero-content">
       <p class="hero-eyebrow">Visual Archive - Est. 2026</p>
       <h1 id="heroTitle">Captured<br><em>Moments</em></h1>
@@ -77,6 +78,8 @@
     <div class="h-track" id="hTrack"></div>
   </section>
 
+  <section class="float3d-section" id="float3d"></section>
+
   <section class="masonry-section" id="archive">
     <div class="masonry-title">Full <em>Collection</em></div>
     <div class="filter-bar" id="filterBar"></div>
@@ -97,6 +100,10 @@
       <div class="lb-title" id="lbTitle"></div>
       <div class="lb-counter" id="lbCounter"></div>
     </div>
+    <button class="lb-mute magnetic" id="lbMute" onclick="toggleMute()">
+      <svg class="lb-mute-icon" id="lbMuteIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07" id="lbMuteWaves"/></svg>
+    </button>
+    <audio id="lbAudio" loop preload="auto"><source src="music.mp3" type="audio/mpeg"></audio>
   </div>
 
   <script src="js/particles.js"></script>

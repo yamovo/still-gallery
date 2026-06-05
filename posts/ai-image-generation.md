@@ -3,7 +3,7 @@ title: "AI 生图：从文字到画面的距离"
 date: "2026-06-06"
 excerpt: "用 AI 生成图片听起来很神奇，但要得到好结果，需要理解模型是怎么'看'世界的。"
 category: "AI"
-cover: "/images/file_00000000ef5472098b46b6031dfde0bd.png"
+cover: "/images/The%20Boys/file_0000000046c471faa7be0abb384a5c3d.png"
 ---
 
 ## 一张图是怎么生成的

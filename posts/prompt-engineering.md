@@ -3,7 +3,7 @@ title: "提示词工程：和 AI 对话的艺术"
 date: "2026-06-06"
 excerpt: "写好提示词不是背模板，而是学会把脑子里模糊的想法翻译成 AI 能理解的语言。"
 category: "AI"
-cover: "/images/9faf65dbbef55495d7e0bcec8f738b68997b4071a81041222.gif"
+cover: "/images/The%20Boys/9faf65dbbef55495d7e0bcec8f738b68997b4071a81041222.gif"
 ---
 
 ## 为什么提示词很重要
