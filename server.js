@@ -142,6 +142,27 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // Sitemap
+  if (req.url === '/sitemap.xml') {
+    const postsDir = path.join(ROOT, 'posts');
+    const base = 'http://localhost:' + PORT;
+    let urls = ['/', '/blog'];
+    try {
+      const files = fs.readdirSync(postsDir).filter(f => f.endsWith('.md'));
+      files.forEach(f => {
+        const slug = f.replace(/\.md$/, '');
+        urls.push('/post?slug=' + slug);
+      });
+    } catch {}
+    const xml = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+      '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+      urls.map(u => '  <url><loc>' + base + u + '</loc></url>').join('\n') + '\n' +
+      '</urlset>';
+    res.writeHead(200, { 'Content-Type': 'application/xml' });
+    res.end(xml);
+    return;
+  }
+
   // RSS feed
   if (req.url === '/rss.xml' || req.url === '/rss') {
     const postsDir = path.join(ROOT, 'posts');

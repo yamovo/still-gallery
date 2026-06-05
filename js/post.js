@@ -45,6 +45,15 @@ if (!slug) {
 
 function renderPost(post) {
   document.title = post.title + ' - STILL';
+  // Update meta tags for SEO
+  var desc = post.excerpt || '';
+  var metaDesc = document.getElementById('metaDesc');
+  if (metaDesc) metaDesc.setAttribute('content', desc);
+  var ogTitle = document.getElementById('ogTitle');
+  if (ogTitle) ogTitle.setAttribute('content', post.title + ' - STILL');
+  var ogDesc = document.getElementById('ogDesc');
+  if (ogDesc) ogDesc.setAttribute('content', desc);
+
   document.getElementById('postTitle').textContent = post.title;
   document.getElementById('postExcerpt').textContent = post.excerpt || '';
   document.getElementById('postBody').innerHTML = post.content;
