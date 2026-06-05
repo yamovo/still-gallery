@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="pageTitle">Post - STILL</title>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/animejs@4.4.1/dist/bundles/anime.umd.min.js"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <canvas id="particles" style="position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0.4;"></canvas>
+
+  <div class="scroll-progress" id="scrollProgress"></div>
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <div class="loader" id="loader">
+    <div class="loader-text" id="loaderText"></div>
+    <div class="loader-bar"><div class="loader-bar-fill" id="loaderFill"></div></div>
+  </div>
+
+  <nav class="nav">
+    <a href="/" class="nav-logo" style="text-decoration:none;color:inherit;">STILL</a>
+    <div class="nav-links">
+      <a class="nav-link magnetic" href="/">Gallery</a>
+      <a class="nav-link magnetic" href="/blog">Writing</a>
+    </div>
+  </nav>
+
+  <article class="post-article" id="postArticle">
+    <header class="post-header">
+      <a href="/blog" class="post-back">&larr; Writing</a>
+      <div class="post-meta">
+        <span class="post-category" id="postCategory"></span>
+        <time id="postDate"></time>
+      </div>
+      <h1 class="post-title" id="postTitle"></h1>
+      <p class="post-excerpt" id="postExcerpt"></p>
+    </header>
+    <div class="post-cover-wrap" id="postCoverWrap" style="display:none;">
+      <img id="postCover" src="" alt="">
+    </div>
+    <div class="post-body" id="postBody"></div>
+    <nav class="post-nav" id="postNav"></nav>
+  </article>
+
+  <div class="lightbox" id="postLightbox">
+    <button class="lb-close magnetic" id="postLbClose">&times;</button>
+    <img class="lb-img" id="postLbImg" src="" alt="">
+  </div>
+
+  <footer>
+    <span>&copy; 2026 STILL</span>
+    <span>Built with Passion</span>
+  </footer>
+
+  <script src="js/particles.js"></script>
+  <script src="js/post.js"></script>
+</body>
+</html>

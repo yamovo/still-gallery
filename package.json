@@ -6,6 +6,15 @@
   "scripts": {
     "start": "node server.js"
   },
-  "keywords": ["gallery", "image", "portfolio", "animejs", "masonry"],
-  "license": "MIT"
+  "keywords": [
+    "gallery",
+    "image",
+    "portfolio",
+    "animejs",
+    "masonry"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "marked": "^18.0.5"
+  }
 }
