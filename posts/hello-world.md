@@ -3,7 +3,7 @@ title: "Hello, World"
 date: "2026-06-01"
 excerpt: "第一篇博客文章，聊聊为什么要做这个网站，以及后面打算写些什么。"
 category: "创作"
-cover: ""
+cover: "/images/Screenshot_2026-05-26-18-39-12-245_com.ss.android.jpg"
 ---
 
 ## 为什么开始写博客

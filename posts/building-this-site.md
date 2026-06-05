@@ -3,7 +3,7 @@ title: "搭建这个网站的技术记录"
 date: "2026-06-05"
 excerpt: "从零开始搭一个个人网站，用了哪些技术，做了哪些设计选择。"
 category: "技术"
-cover: ""
+cover: "/images/407da409189fb7bc4496e016de34c011db2dc2458ff6bef6a.gif"
 ---
 
 ## 技术选型
