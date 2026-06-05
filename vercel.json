@@ -1,0 +1,11 @@
+{
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/blog", "destination": "/api" },
+    { "source": "/post", "destination": "/api" },
+    { "source": "/sitemap.xml", "destination": "/api" },
+    { "source": "/rss.xml", "destination": "/api" },
+    { "source": "/rss", "destination": "/api" },
+    { "source": "/((?!api/).*)", "destination": "/api" }
+  ]
+}
