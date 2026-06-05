@@ -279,8 +279,8 @@
         }
       });
 
-      // Horizontal track parallax
-      var hSection = document.querySelector('.h-section');
+      // Horizontal track parallax (archive)
+      var hSection = document.querySelector('#work');
       var hTrackEl = document.getElementById('hTrack');
       if (hSection && hTrackEl) {
         window.addEventListener('scroll', function() {
@@ -288,6 +288,18 @@
           var viewH = window.innerHeight;
           var progress = Math.max(0, Math.min(1, (viewH - rect.top) / (viewH + rect.height)));
           hTrackEl.style.transform = 'translateX(' + (-150 * progress) + 'px)';
+        });
+      }
+
+      // Writing track parallax
+      var writingSection = document.querySelector('#writing');
+      var writingTrack = document.getElementById('writingTrack');
+      if (writingSection && writingTrack) {
+        window.addEventListener('scroll', function() {
+          var rect = writingSection.getBoundingClientRect();
+          var viewH = window.innerHeight;
+          var progress = Math.max(0, Math.min(1, (viewH - rect.top) / (viewH + rect.height)));
+          writingTrack.style.transform = 'translateX(' + (-100 * progress) + 'px)';
         });
       }
 

@@ -42,6 +42,10 @@ function parseFrontmatter(raw) {
   return { meta, body: match[2] };
 }
 
+function escapeXml(str) {
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 // Estimate reading time for Chinese/English mixed content
 function readingTime(text) {
   var totalChars = text.replace(/\s/g, '').length;
@@ -134,6 +138,48 @@ const server = http.createServer((req, res) => {
     } catch {
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end('[]');
+    }
+    return;
+  }
+
+  // RSS feed
+  if (req.url === '/rss.xml' || req.url === '/rss') {
+    const postsDir = path.join(ROOT, 'posts');
+    try {
+      const files = fs.readdirSync(postsDir).filter(f => f.endsWith('.md')).sort();
+      const items = files.map(f => {
+        const raw = fs.readFileSync(path.join(postsDir, f), 'utf-8');
+        const { meta, body } = parseFrontmatter(raw);
+        const slug = f.replace(/\.md$/, '');
+        const title = meta.title || slug;
+        const date = meta.date || '';
+        const excerpt = meta.excerpt || '';
+        const category = meta.category || '';
+        const pubDate = date ? new Date(date + 'T00:00:00Z').toUTCString() : '';
+        return '    <item>\n' +
+          '      <title>' + escapeXml(title) + '</title>\n' +
+          '      <link>http://localhost:' + PORT + '/post?slug=' + slug + '</link>\n' +
+          '      <guid>http://localhost:' + PORT + '/post?slug=' + slug + '</guid>\n' +
+          (pubDate ? '      <pubDate>' + pubDate + '</pubDate>\n' : '') +
+          (category ? '      <category>' + escapeXml(category) + '</category>\n' : '') +
+          '      <description>' + escapeXml(excerpt) + '</description>\n' +
+          '    </item>';
+      }).join('\n');
+      const rss = '<?xml version="1.0" encoding="UTF-8"?>\n' +
+        '<rss version="2.0">\n' +
+        '  <channel>\n' +
+        '    <title>STILL</title>\n' +
+        '    <link>http://localhost:' + PORT + '</link>\n' +
+        '    <description>A curated collection of still images and writing</description>\n' +
+        '    <language>zh-cn</language>\n' +
+        items + '\n' +
+        '  </channel>\n' +
+        '</rss>';
+      res.writeHead(200, { 'Content-Type': 'application/xml' });
+      res.end(rss);
+    } catch {
+      res.writeHead(200, { 'Content-Type': 'application/xml' });
+      res.end('<?xml version="1.0"?><rss version="2.0"><channel><title>STILL</title></channel></rss>');
     }
     return;
   }

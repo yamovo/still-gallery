@@ -2,12 +2,18 @@ var images = [];
     var curIdx = 0;
     var lbClickX = window.innerWidth / 2;
     var lbClickY = window.innerHeight / 2;
-// LOAD IMAGES
+    var activeCategory = 'all';
+// LOAD IMAGES + POSTS
     // ========================================
-    fetch('/api/images')
-      .then(function(r) { return r.json(); })
-      .then(function(data) { images = data; renderGallery(); })
-      .catch(function() { renderGallery(); });
+    Promise.all([
+      fetch('/api/images').then(function(r) { return r.json(); }).catch(function() { return []; }),
+      fetch('/api/posts').then(function(r) { return r.json(); }).catch(function() { return []; })
+    ]).then(function(results) {
+      images = results[0];
+      renderGallery();
+      renderWriting(results[1]);
+      renderFilterBar();
+    });
 
     function renderGallery() {
       var featured = document.getElementById('featured');
@@ -42,6 +48,7 @@ var images = [];
 
           var item = document.createElement('div');
           item.className = 'm-item';
+          item.setAttribute('data-category', img.category || '');
           item.innerHTML = '<img src="' + img.src + '" alt="' + (img.title||'') + '" loading="lazy"><div class="m-overlay"><div><h4>' + (img.title||'') + '</h4><span>' + (img.category||'') + '</span></div></div>';
           item.onclick = function(e) { lbClickX = e.clientX; lbClickY = e.clientY; openLB(i); };
           masonry.appendChild(item);
@@ -49,70 +56,168 @@ var images = [];
         bindHoverEffects();
       }
     }
-// DRAG SCROLL — Optimized (rAF batch + velocity smoothing)
-    // ========================================
-    var hTrackEl2 = document.getElementById('hTrack');
-    var isDown = false, startX, scrollLeft, velX = 0, lastX = 0, lastTime = 0, rafId = null;
-    var pendingScroll = null, moveRafId = null;
 
-    function ptrDown(e) {
-      isDown = true;
-      startX = e.pageX - hTrackEl2.offsetLeft;
-      scrollLeft = hTrackEl2.scrollLeft;
-      velX = 0; lastX = startX; lastTime = Date.now();
-      if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
-      if (moveRafId) { cancelAnimationFrame(moveRafId); moveRafId = null; }
-      hTrackEl2.style.cursor = 'grabbing';
-      hTrackEl2.style.userSelect = 'none';
-      // Disable pointer events on children to prevent hover repaints during drag
-      hTrackEl2.style.pointerEvents = 'none';
+    // RENDER WRITING TRACK
+    // ========================================
+    function renderWriting(posts) {
+      var track = document.getElementById('writingTrack');
+      if (!track) return;
+      track.innerHTML = '';
+      if (!posts || posts.length === 0) return;
+
+      posts.forEach(function(post) {
+        var card = document.createElement('div');
+        card.className = 'h-card h-card--post';
+        var imgHTML = '';
+        if (post.cover) {
+          imgHTML = '<img src="' + post.cover + '" alt="' + (post.title||'') + '" loading="lazy">';
+        } else {
+          imgHTML = '<div class="h-card-placeholder">' + (post.category || 'Writing') + '</div>';
+        }
+        var dateStr = '';
+        if (post.date) {
+          var d = new Date(post.date);
+          dateStr = d.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+        }
+        var metaStr = post.category || '';
+        if (dateStr) metaStr += (metaStr ? ' &middot; ' : '') + dateStr;
+        if (post.readingTime) metaStr += ' &middot; ' + post.readingTime + ' min';
+
+        card.innerHTML = '<a href="/post?slug=' + post.slug + '" style="text-decoration:none;color:inherit;display:block;"><div class="h-card-img">' + imgHTML + '</div><div class="h-card-meta"><h4>' + (post.title||post.slug) + '</h4><span>' + metaStr + '</span></div></a>';
+        track.appendChild(card);
+      });
+
+      // Bind drag scroll for writing track
+      initDragScroll(track);
+      // Scroll reveal for writing cards
+      createScrollReveal('#writingTrack .h-card', {
+        y: 30,
+        duration: 600,
+        threshold: 0.1,
+        delay: function(el) {
+          var idx = Array.from(el.parentElement.children).indexOf(el);
+          return idx * 100;
+        }
+      });
     }
-    function ptrMove(e) {
-      if (!isDown) return;
-      e.preventDefault();
-      var x = e.pageX - hTrackEl2.offsetLeft;
-      var now = Date.now(), dt = now - lastTime;
-      if (dt > 0) {
-        // Exponential moving average for smoother velocity
-        var instantVel = (x - lastX) / dt * 16;
-        velX = velX * 0.6 + instantVel * 0.4;
-      }
-      lastX = x; lastTime = now;
-      // Batch DOM writes into next animation frame
-      pendingScroll = scrollLeft - (x - startX);
-      if (!moveRafId) {
-        moveRafId = requestAnimationFrame(function() {
-          if (pendingScroll !== null) {
-            hTrackEl2.scrollLeft = pendingScroll;
-            pendingScroll = null;
-          }
-          moveRafId = null;
-        });
-      }
+
+    // RENDER CATEGORY FILTER BAR
+    // ========================================
+    function renderFilterBar() {
+      var bar = document.getElementById('filterBar');
+      if (!bar || images.length === 0) return;
+      bar.innerHTML = '';
+
+      var cats = {};
+      images.forEach(function(img) {
+        var c = img.category || 'Uncategorized';
+        cats[c] = (cats[c] || 0) + 1;
+      });
+
+      var allPill = document.createElement('button');
+      allPill.className = 'filter-pill active';
+      allPill.textContent = 'All';
+      allPill.setAttribute('data-cat', 'all');
+      allPill.onclick = function() { filterByCategory('all'); };
+      bar.appendChild(allPill);
+
+      Object.keys(cats).sort().forEach(function(cat) {
+        var pill = document.createElement('button');
+        pill.className = 'filter-pill';
+        pill.textContent = cat + ' (' + cats[cat] + ')';
+        pill.setAttribute('data-cat', cat);
+        pill.onclick = function() { filterByCategory(cat); };
+        bar.appendChild(pill);
+      });
     }
-    function ptrUp() {
-      if (!isDown) return;
-      isDown = false;
-      hTrackEl2.style.cursor = 'grab';
-      hTrackEl2.style.userSelect = '';
-      // Re-enable pointer events after a short delay to avoid immediate hover triggers
-      setTimeout(function() { hTrackEl2.style.pointerEvents = ''; }, 60);
-      var friction = 0.95;
-      function decel() {
-        if (Math.abs(velX) < 0.5) return;
-        hTrackEl2.scrollLeft -= velX;
-        velX *= friction;
+
+    function filterByCategory(cat) {
+      activeCategory = cat;
+      // Update pill active state
+      document.querySelectorAll('.filter-pill').forEach(function(p) {
+        p.classList.toggle('active', p.getAttribute('data-cat') === cat);
+      });
+      // Filter masonry items
+      document.querySelectorAll('.m-item').forEach(function(item) {
+        var itemCat = item.getAttribute('data-category') || 'Uncategorized';
+        if (cat === 'all' || itemCat === cat) {
+          item.style.display = '';
+          anime.animate(item, { opacity: [0, 1], scale: [0.95, 1], duration: 400, easing: 'easeOutQuad' });
+        } else {
+          anime.animate(item, {
+            opacity: [1, 0],
+            scale: [1, 0.95],
+            duration: 300,
+            easing: 'easeInQuad',
+            onComplete: function() { item.style.display = 'none'; }
+          });
+        }
+      });
+    }
+// DRAG SCROLL — Reusable, optimized (rAF batch + velocity smoothing)
+    // ========================================
+    function initDragScroll(el) {
+      var isDown = false, startX, scrollLeft, velX = 0, lastX = 0, lastTime = 0, rafId = null;
+      var pendingScroll = null, moveRafId = null;
+
+      function ptrDown(e) {
+        isDown = true;
+        startX = e.pageX - el.offsetLeft;
+        scrollLeft = el.scrollLeft;
+        velX = 0; lastX = startX; lastTime = Date.now();
+        if (rafId) { cancelAnimationFrame(rafId); rafId = null; }
+        if (moveRafId) { cancelAnimationFrame(moveRafId); moveRafId = null; }
+        el.style.cursor = 'grabbing';
+        el.style.userSelect = 'none';
+        el.style.pointerEvents = 'none';
+      }
+      function ptrMove(e) {
+        if (!isDown) return;
+        e.preventDefault();
+        var x = e.pageX - el.offsetLeft;
+        var now = Date.now(), dt = now - lastTime;
+        if (dt > 0) {
+          var instantVel = (x - lastX) / dt * 16;
+          velX = velX * 0.6 + instantVel * 0.4;
+        }
+        lastX = x; lastTime = now;
+        pendingScroll = scrollLeft - (x - startX);
+        if (!moveRafId) {
+          moveRafId = requestAnimationFrame(function() {
+            if (pendingScroll !== null) {
+              el.scrollLeft = pendingScroll;
+              pendingScroll = null;
+            }
+            moveRafId = null;
+          });
+        }
+      }
+      function ptrUp() {
+        if (!isDown) return;
+        isDown = false;
+        el.style.cursor = 'grab';
+        el.style.userSelect = '';
+        setTimeout(function() { el.style.pointerEvents = ''; }, 60);
+        var friction = 0.95;
+        function decel() {
+          if (Math.abs(velX) < 0.5) return;
+          el.scrollLeft -= velX;
+          velX *= friction;
+          rafId = requestAnimationFrame(decel);
+        }
         rafId = requestAnimationFrame(decel);
       }
-      rafId = requestAnimationFrame(decel);
+      el.addEventListener('mousedown', ptrDown);
+      document.addEventListener('mousemove', ptrMove);
+      document.addEventListener('mouseup', ptrUp);
+      el.addEventListener('touchstart', function(e) { ptrDown({ pageX: e.touches[0].pageX }); }, { passive: true });
+      el.addEventListener('touchmove', function(e) { ptrMove({ pageX: e.touches[0].pageX, preventDefault: function(){ e.preventDefault(); } }); }, { passive: false });
+      el.addEventListener('touchend', ptrUp);
+      el.addEventListener('touchcancel', ptrUp);
     }
-    hTrackEl2.addEventListener('mousedown', ptrDown);
-    document.addEventListener('mousemove', ptrMove);
-    document.addEventListener('mouseup', ptrUp);
-    hTrackEl2.addEventListener('touchstart', function(e) { ptrDown({ pageX: e.touches[0].pageX }); }, { passive: true });
-    hTrackEl2.addEventListener('touchmove', function(e) { ptrMove({ pageX: e.touches[0].pageX, preventDefault: function(){ e.preventDefault(); } }); }, { passive: false });
-    hTrackEl2.addEventListener('touchend', ptrUp);
-    hTrackEl2.addEventListener('touchcancel', ptrUp);
+
+    // Init drag scroll for archive track
+    initDragScroll(document.getElementById('hTrack'));
 // 7. LIGHTBOX - SCALE FROM CLICK POSITION
     // ========================================
     function openLB(i) {

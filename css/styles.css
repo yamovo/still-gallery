@@ -71,6 +71,8 @@
     .h-header h2 { font-family: var(--serif); font-size: clamp(24px, 4vw, 44px); font-weight: 400; }
     .h-header h2 em { color: var(--gold); }
     .h-count { font-size: 11px; letter-spacing: 3px; color: var(--muted); }
+    .h-more { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); text-decoration: none; transition: color 0.3s; display: inline-block; }
+    .h-more:hover { color: var(--gold); }
     .h-track { display: flex; gap: 20px; padding: 0 40px; overflow-x: auto; scrollbar-width: none; cursor: grab; will-change: transform; -webkit-overflow-scrolling: touch; }
     .h-track::-webkit-scrollbar { display: none; }
     .h-track:active { cursor: grabbing; }
@@ -80,6 +82,18 @@
     .h-card-meta { padding: 14px 0; }
     .h-card-meta h4 { font-family: var(--serif); font-size: 16px; font-weight: 400; }
     .h-card-meta span { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+
+    /* Post card variant for horizontal track */
+    .h-card--post .h-card-img { height: 320px; display: flex; align-items: center; justify-content: center; }
+    .h-card--post .h-card-img img { height: 100%; }
+    .h-card--post .h-card-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); background: linear-gradient(135deg, var(--card) 0%, #1a1a1a 100%); border: 1px solid var(--border); border-radius: 2px; }
+    .h-card--post .h-card-meta time { font-size: 10px; letter-spacing: 2px; color: var(--muted); display: block; margin-top: 4px; }
+
+    /* Filter bar */
+    .filter-bar { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 32px; }
+    .filter-pill { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); background: none; border: 1px solid var(--border); border-radius: 2px; padding: 6px 14px; cursor: pointer; transition: all 0.3s; font-family: var(--sans); }
+    .filter-pill:hover { color: var(--text); border-color: var(--text); }
+    .filter-pill.active { color: var(--gold); border-color: rgba(201,169,110,0.4); }
 
     .masonry-section { padding: 60px 40px 120px; }
     .masonry-title { font-family: var(--serif); font-size: clamp(28px, 4vw, 48px); font-weight: 400; margin-bottom: 40px; }
