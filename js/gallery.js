@@ -35,21 +35,21 @@ var images = [];
         images.slice(0, 2).forEach(function(img, i) {
           var div = document.createElement('div');
           div.className = 'feat-item';
-          div.innerHTML = '<img src="' + img.src + '" alt="' + (img.title||'') + '" loading="lazy"><div class="feat-info"><div class="num">' + String(i+1).padStart(2,'0') + '</div><h3>' + (img.title||'') + '</h3><p>' + (img.category||'') + '</p></div>';
+          div.innerHTML = '<img src="' + img.src + '" alt="' + (img.title||'') + '" loading="lazy" onerror="this.style.opacity=0.2"><div class="feat-info"><div class="num">' + String(i+1).padStart(2,'0') + '</div><h3>' + (img.title||'') + '</h3><p>' + (img.category||'') + '</p></div>';
           div.onclick = function(e) { lbClickX = e.clientX; lbClickY = e.clientY; openLB(i); };
           featured.appendChild(div);
         });
         images.forEach(function(img, i) {
           var card = document.createElement('div');
           card.className = 'h-card';
-          card.innerHTML = '<div class="h-card-img"><img src="' + img.src + '" alt="' + (img.title||'') + '" loading="lazy"></div><div class="h-card-meta"><h4>' + (img.title||'') + '</h4><span>' + (img.category||'') + '</span></div>';
+          card.innerHTML = '<div class="h-card-img"><img src="' + img.src + '" alt="' + (img.title||'') + '" loading="lazy" onerror="this.style.opacity=0.2;this.alt=\'Failed to load\'"></div><div class="h-card-meta"><h4>' + (img.title||'') + '</h4><span>' + (img.category||'') + '</span></div>';
           card.onclick = function(e) { lbClickX = e.clientX; lbClickY = e.clientY; openLB(i); };
           hTrack.appendChild(card);
 
           var item = document.createElement('div');
           item.className = 'm-item';
           item.setAttribute('data-category', img.category || '');
-          item.innerHTML = '<img src="' + img.src + '" alt="' + (img.title||'') + '" loading="lazy"><div class="m-overlay"><div><h4>' + (img.title||'') + '</h4><span>' + (img.category||'') + '</span></div></div>';
+          item.innerHTML = '<img src="' + img.src + '" alt="' + (img.title||'') + '" loading="lazy" onerror="this.style.opacity=0.2"><div class="m-overlay"><div><h4>' + (img.title||'') + '</h4><span>' + (img.category||'') + '</span></div></div>';
           item.onclick = function(e) { lbClickX = e.clientX; lbClickY = e.clientY; openLB(i); };
           masonry.appendChild(item);
         });
@@ -72,7 +72,8 @@ var images = [];
         if (post.cover) {
           imgHTML = '<img src="' + post.cover + '" alt="' + (post.title||'') + '" loading="lazy">';
         } else {
-          imgHTML = '<div class="h-card-placeholder">' + (post.category || 'Writing') + '</div>';
+          var initials = (post.title || 'W').charAt(0).toUpperCase();
+          imgHTML = '<div class="h-card-placeholder"><span class="h-card-initial">' + initials + '</span><span class="h-card-placeholder-cat">' + (post.category || 'Writing') + '</span></div>';
         }
         var dateStr = '';
         if (post.date) {
