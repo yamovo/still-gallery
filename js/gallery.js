@@ -72,8 +72,7 @@ var images = [];
         if (post.cover) {
           imgHTML = '<img src="' + post.cover + '" alt="' + (post.title||'') + '" loading="lazy">';
         } else {
-          var initials = (post.title || 'W').charAt(0).toUpperCase();
-          imgHTML = '<div class="h-card-placeholder"><span class="h-card-initial">' + initials + '</span><span class="h-card-placeholder-cat">' + (post.category || 'Writing') + '</span></div>';
+          imgHTML = '<div class="h-card-placeholder"><span class="h-card-placeholder-line"></span></div>';
         }
         var dateStr = '';
         if (post.date) {

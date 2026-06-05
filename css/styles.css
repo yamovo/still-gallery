@@ -86,10 +86,8 @@
     /* Post card variant for horizontal track */
     .h-card--post .h-card-img { height: 320px; display: flex; align-items: center; justify-content: center; }
     .h-card--post .h-card-img img { height: 100%; }
-    .h-card--post .h-card-placeholder { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; background: linear-gradient(135deg, #111 0%, #0d0d0d 50%, #111 100%); border: 1px solid var(--border); border-radius: 2px; position: relative; overflow: hidden; }
-    .h-card--post .h-card-placeholder::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 50% 30%, rgba(201,169,110,0.06), transparent 70%); }
-    .h-card--post .h-card-initial { font-family: var(--serif); font-size: 72px; font-weight: 400; color: var(--gold); opacity: 0.25; line-height: 1; position: relative; z-index: 1; }
-    .h-card--post .h-card-placeholder-cat { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); position: relative; z-index: 1; }
+    .h-card--post .h-card-placeholder { width: 100%; height: 100%; background: var(--card); border: 1px solid var(--border); border-radius: 2px; position: relative; overflow: hidden; }
+    .h-card--post .h-card-placeholder-line { position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--gold); opacity: 0.4; }
     .h-card--post .h-card-meta time { font-size: 10px; letter-spacing: 2px; color: var(--muted); display: block; margin-top: 4px; }
 
     /* Filter bar */
