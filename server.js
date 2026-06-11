@@ -180,7 +180,16 @@ const server = http.createServer((req, res) => {
     return;
   }
   if (req.url === '/void-api/posts') {
-    try { sendJson(res, getPostList(path.join(ROOT, 'void-content/posts'))); }
+    try {
+      const posts = getPostList(path.join(ROOT, 'void-content/posts'));
+      // Rewrite cover paths: /images/... → /void-content/images/...
+      posts.forEach(p => {
+        if (p.cover && p.cover.startsWith('/images/')) {
+          p.cover = '/void-content' + p.cover;
+        }
+      });
+      sendJson(res, posts);
+    }
     catch { sendJson(res, []); }
     return;
   }
