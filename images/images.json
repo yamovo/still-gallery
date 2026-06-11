@@ -1,59 +1,34 @@
 [
   {
-    "file": "Screenshot_2026-05-26-18-39-12-245_com.ss.android.jpg",
-    "title": "Urban Light"
+    "file": "lens-light.svg",
+    "title": "镜头光晕"
   },
   {
-    "file": "Screenshot_2026-05-28-16-57-43-578_com.ss.android.jpg",
-    "title": "Street Scene"
+    "file": "golden-hour.svg",
+    "title": "黄金时刻"
   },
   {
-    "file": "file_00000000ef5472098b46b6031dfde0bd.png",
-    "title": "Abstract Form"
+    "file": "shadow-lines.svg",
+    "title": "光影线条"
   },
   {
-    "file": "mmexport1770895393059.jpg",
-    "title": "Quiet Moment"
+    "file": "city-lights.svg",
+    "title": "城市夜色"
   },
   {
-    "file": "Screenshot_2026-06-04-22-19-45-290_com.ss.android.jpg",
-    "title": "First Light"
+    "file": "abstract-portrait.svg",
+    "title": "抽象人像"
   },
   {
-    "file": "Screenshot_2026-06-04-22-19-50-883_com.ss.android.jpg",
-    "title": "Amber Glow"
+    "file": "minimal-landscape.svg",
+    "title": "极简风景"
   },
   {
-    "file": "Screenshot_2026-06-05-17-08-41-583_com.ss.android.jpg",
-    "title": "Warm Horizon"
+    "file": "neon-reflection.svg",
+    "title": "霓虹倒影"
   },
   {
-    "file": "407da409189fb7bc4496e016de34c011db2dc2458ff6bef6a.gif",
-    "title": "Golden Hour"
-  },
-  {
-    "file": "IMG_20260605_180755.jpg",
-    "title": "Still Life"
-  },
-  {
-    "file": "Image_1757658329998.jpg",
-    "title": "Soft Focus"
-  },
-  {
-    "file": "Screenshot_2025-12-24-00-04-32-534_com.ss.android.jpg",
-    "title": "Winter Night"
-  },
-  {
-    "file": "Screenshot_2026-01-01-00-58-23-929_com.ss.android.jpg",
-    "title": "New Dawn"
-  },
-  {
-    "file": "9faf65dbbef55495d7e0bcec8f738b68997b4071a81041222.gif",
-    "title": "Neon Dreams",
-    "audio": "Messages from the Stars.m4a"
-  },
-  {
-    "file": "file_0000000046c471faa7be0abb384a5c3d.png",
-    "title": "Digital Art"
+    "file": "silhouette.svg",
+    "title": "剪影"
   }
 ]

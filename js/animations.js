@@ -185,6 +185,181 @@
         observer.observe(el);
       });
     }
+
+    // FLOATING 3D SHOWCASE ANIMATIONS — called after cards are created
+    // ========================================
+    window._float3dAnimInit = false;
+    window.initFloat3DAnimations = function() {
+      if (window._float3dAnimInit) return;
+      var float3dSection = document.getElementById('float3d');
+      var float3dCards = document.querySelectorAll('.float3d-card');
+      var float3dStage = document.getElementById('float3dStage');
+      if (!float3dCards.length || !float3dStage) return;
+      window._float3dAnimInit = true;
+
+      // Explosive entrance from center
+      var entranceDone = false;
+      var entranceObs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting && !entranceDone) {
+            entranceDone = true;
+            entranceObs.unobserve(entry.target);
+
+            // Set initial scattered state
+            float3dCards.forEach(function(card) {
+              card.style.opacity = '0';
+              card.style.transform = 'translateZ(-400px) rotateX(25deg) rotateY(-25deg) scale(0.2)';
+            });
+
+            // Animate each card from center explosion to its resting position
+            float3dCards.forEach(function(card, i) {
+              var baseRY = card._baseRY || 0;
+              var baseRX = card._baseRX || 0;
+              var baseZ = card._baseZ || 0;
+
+              anime.animate(card, {
+                opacity: { from: 0, to: 1 },
+                translateZ: { from: -400, to: baseZ },
+                rotateX: { from: 25, to: baseRX },
+                rotateY: { from: -25, to: baseRY },
+                rotateZ: { from: 0, to: 0 },
+                scale: { from: 0.2, to: 1 },
+                duration: 1400,
+                delay: 200 + i * 100,
+                ease: 'outCubic',
+                onComplete: function() {
+                  if (i === float3dCards.length - 1) startFloatLoop();
+                }
+              });
+            });
+          }
+        });
+      }, { threshold: 0.15 });
+      entranceObs.observe(float3dStage);
+
+      // Mouse tracking (normalized -1 to 1)
+      var f3dMX = 0, f3dMY = 0;
+      var f3dTargetMX = 0, f3dTargetMY = 0;
+      document.addEventListener('mousemove', function(e) {
+        f3dTargetMX = (e.clientX / window.innerWidth - 0.5) * 2;
+        f3dTargetMY = (e.clientY / window.innerHeight - 0.5) * 2;
+      });
+
+      // Hover lift + drag
+      var dragCard = null, dragStartX = 0, dragStartY = 0, dragMoved = false;
+      float3dCards.forEach(function(card) {
+        card._dragX = 0;
+        card._dragY = 0;
+        card.addEventListener('mouseenter', function() {
+          card._hovered = true;
+          if (!dragCard) card.style.cursor = 'grab';
+        });
+        card.addEventListener('mouseleave', function() {
+          card._hovered = false;
+          if (!dragCard) card.style.cursor = 'pointer';
+        });
+        card.addEventListener('mousedown', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          dragCard = card;
+          dragStartX = e.clientX - card._dragX;
+          dragStartY = e.clientY - card._dragY;
+          dragMoved = false;
+          card.style.cursor = 'grabbing';
+          card._hovered = true;
+          card._dragging = true;
+        });
+      });
+      document.addEventListener('mousemove', function(e) {
+        if (!dragCard) return;
+        var dx = e.clientX - dragStartX;
+        var dy = e.clientY - dragStartY;
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved = true;
+        dragCard._dragX = dx;
+        dragCard._dragY = dy;
+      });
+      document.addEventListener('mouseup', function() {
+        if (!dragCard) return;
+        dragCard._dragging = false;
+        dragCard.style.cursor = 'grab';
+        if (dragMoved) {
+          var c = dragCard;
+          c._justDragged = true;
+          setTimeout(function() { c._justDragged = false; }, 100);
+        }
+        dragCard = null;
+      });
+
+      var floatLoopRaf = null;
+      var floatLoopStart = 0;
+
+      function startFloatLoop() {
+        floatLoopStart = performance.now();
+        floatLoopRaf = requestAnimationFrame(floatLoopTick);
+      }
+
+      function floatLoopTick(now) {
+        var t = (now - floatLoopStart) / 1000;
+
+        f3dMX += (f3dTargetMX - f3dMX) * 0.06;
+        f3dMY += (f3dTargetMY - f3dMY) * 0.06;
+
+        float3dStage.style.transform =
+          'rotateY(' + (f3dMX * 12) + 'deg) ' +
+          'rotateX(' + (f3dMY * -8) + 'deg)';
+
+        float3dCards.forEach(function(card) {
+          var phase = card._phase || 0;
+          var baseRY = card._baseRY || 0;
+          var baseRX = card._baseRX || 0;
+          var baseZ = card._baseZ || 0;
+
+          var floatY = Math.sin(t * 0.9 + phase) * 18;
+          var floatX = Math.cos(t * 0.6 + phase * 0.7) * 5;
+          var rz = Math.sin(t * 0.5 + phase) * 2;
+
+          var depthFactor = baseZ / 200;
+          var px = f3dMX * 30 * depthFactor;
+          var py = f3dMY * 20 * depthFactor;
+
+          var hoverScale = card._hovered ? 1.15 : 1;
+          var hoverZ = card._hovered ? 120 : 0;
+
+          var dx = card._dragX || 0;
+          var dy = card._dragY || 0;
+
+          card.style.transform =
+            'translate3d(' + (floatX + px + dx) + 'px, ' + (floatY + py + dy) + 'px, ' + (baseZ + hoverZ + (card._dragging ? 80 : 0)) + 'px) ' +
+            'rotateX(' + (baseRX + (card._dragging ? -dy * 0.05 : 0)) + 'deg) ' +
+            'rotateY(' + (baseRY + (card._dragging ? dx * 0.05 : 0)) + 'deg) ' +
+            'rotateZ(' + rz + 'deg) ' +
+            'scale(' + (card._dragging ? 1.1 : hoverScale) + ')';
+
+          var shine = card.querySelector('.float3d-shine');
+          if (shine) {
+            var sx = ((f3dTargetMX + 1) / 2) * 100;
+            var sy = ((f3dTargetMY + 1) / 2) * 100;
+            shine.style.setProperty('--shine-x', sx + '%');
+            shine.style.setProperty('--shine-y', sy + '%');
+          }
+        });
+
+        floatLoopRaf = requestAnimationFrame(floatLoopTick);
+      }
+
+      // Pause when out of view
+      var perfObs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+            if (!floatLoopRaf && entranceDone) { floatLoopStart = performance.now(); floatLoopRaf = requestAnimationFrame(floatLoopTick); }
+          } else {
+            if (floatLoopRaf) { cancelAnimationFrame(floatLoopRaf); floatLoopRaf = null; }
+          }
+        });
+      }, { threshold: 0 });
+      perfObs.observe(float3dSection);
+    };
+
 // INIT ANIMATIONS
     // ========================================
     function initAnimations() {
@@ -603,179 +778,7 @@
           ptVis.observe(float3dSection);
         })();
 
-        // 3D scene — explosive entrance + continuous float + mouse parallax
-        var float3dCards = document.querySelectorAll('.float3d-card');
-        var float3dStage = document.getElementById('float3dStage');
-        if (float3dCards.length && float3dStage) {
-          // Explosive entrance from center
-          var entranceDone = false;
-          var entranceObs = new IntersectionObserver(function(entries) {
-            entries.forEach(function(entry) {
-              if (entry.isIntersecting && !entranceDone) {
-                entranceDone = true;
-                entranceObs.unobserve(entry.target);
-
-                // Set initial scattered state
-                float3dCards.forEach(function(card) {
-                  card.style.opacity = '0';
-                  card.style.transform = 'translateZ(-400px) rotateX(25deg) rotateY(-25deg) scale(0.2)';
-                });
-
-                // Animate each card from center explosion to its resting position
-                float3dCards.forEach(function(card, i) {
-                  var baseRY = card._baseRY || 0;
-                  var baseRX = card._baseRX || 0;
-                  var baseZ = card._baseZ || 0;
-
-                  anime.animate(card, {
-                    opacity: { from: 0, to: 1 },
-                    translateZ: { from: -400, to: baseZ },
-                    rotateX: { from: 25, to: baseRX },
-                    rotateY: { from: -25, to: baseRY },
-                    rotateZ: { from: 0, to: 0 },
-                    scale: { from: 0.2, to: 1 },
-                    duration: 1400,
-                    delay: 200 + i * 100,
-                    ease: 'outCubic',
-                    onComplete: function() {
-                      if (i === float3dCards.length - 1) startFloatLoop();
-                    }
-                  });
-                });
-              }
-            });
-          }, { threshold: 0.15 });
-          entranceObs.observe(float3dStage);
-
-          // Mouse tracking (normalized -1 to 1)
-          var f3dMX = 0, f3dMY = 0;
-          var f3dTargetMX = 0, f3dTargetMY = 0;
-          document.addEventListener('mousemove', function(e) {
-            f3dTargetMX = (e.clientX / window.innerWidth - 0.5) * 2;
-            f3dTargetMY = (e.clientY / window.innerHeight - 0.5) * 2;
-          });
-
-          // Hover lift + drag
-          var dragCard = null, dragStartX = 0, dragStartY = 0, dragMoved = false;
-          float3dCards.forEach(function(card) {
-            card._dragX = 0;
-            card._dragY = 0;
-            card.addEventListener('mouseenter', function() {
-              card._hovered = true;
-              if (!dragCard) card.style.cursor = 'grab';
-            });
-            card.addEventListener('mouseleave', function() {
-              card._hovered = false;
-              if (!dragCard) card.style.cursor = 'pointer';
-            });
-            card.addEventListener('mousedown', function(e) {
-              e.preventDefault();
-              e.stopPropagation();
-              dragCard = card;
-              dragStartX = e.clientX - card._dragX;
-              dragStartY = e.clientY - card._dragY;
-              dragMoved = false;
-              card.style.cursor = 'grabbing';
-              card._hovered = true;
-              card._dragging = true;
-            });
-          });
-          document.addEventListener('mousemove', function(e) {
-            if (!dragCard) return;
-            var dx = e.clientX - dragStartX;
-            var dy = e.clientY - dragStartY;
-            if (Math.abs(dx) > 3 || Math.abs(dy) > 3) dragMoved = true;
-            dragCard._dragX = dx;
-            dragCard._dragY = dy;
-          });
-          document.addEventListener('mouseup', function() {
-            if (!dragCard) return;
-            dragCard._dragging = false;
-            dragCard.style.cursor = 'grab';
-            // Mark this card as just-dragged to suppress click
-            if (dragMoved) {
-              var c = dragCard;
-              c._justDragged = true;
-              setTimeout(function() { c._justDragged = false; }, 100);
-            }
-            dragCard = null;
-          });
-
-          var floatLoopRaf = null;
-          var floatLoopStart = 0;
-
-          function startFloatLoop() {
-            floatLoopStart = performance.now();
-            floatLoopRaf = requestAnimationFrame(floatLoopTick);
-          }
-
-          function floatLoopTick(now) {
-            var t = (now - floatLoopStart) / 1000;
-
-            // Smooth mouse interpolation
-            f3dMX += (f3dTargetMX - f3dMX) * 0.06;
-            f3dMY += (f3dTargetMY - f3dMY) * 0.06;
-
-            // Rotate the entire stage based on mouse
-            float3dStage.style.transform =
-              'rotateY(' + (f3dMX * 12) + 'deg) ' +
-              'rotateX(' + (f3dMY * -8) + 'deg)';
-
-            float3dCards.forEach(function(card) {
-              var phase = card._phase || 0;
-              var baseRY = card._baseRY || 0;
-              var baseRX = card._baseRX || 0;
-              var baseZ = card._baseZ || 0;
-
-              // Floating oscillation — original feel
-              var floatY = Math.sin(t * 0.9 + phase) * 18;
-              var floatX = Math.cos(t * 0.6 + phase * 0.7) * 5;
-              var rz = Math.sin(t * 0.5 + phase) * 2;
-
-              // Parallax offset from mouse — deeper cards move more
-              var depthFactor = baseZ / 200;
-              var px = f3dMX * 30 * depthFactor;
-              var py = f3dMY * 20 * depthFactor;
-
-              // Hover lift
-              var hoverScale = card._hovered ? 1.15 : 1;
-              var hoverZ = card._hovered ? 120 : 0;
-
-              var dx = card._dragX || 0;
-              var dy = card._dragY || 0;
-
-              card.style.transform =
-                'translate3d(' + (floatX + px + dx) + 'px, ' + (floatY + py + dy) + 'px, ' + (baseZ + hoverZ + (card._dragging ? 80 : 0)) + 'px) ' +
-                'rotateX(' + (baseRX + (card._dragging ? -dy * 0.05 : 0)) + 'deg) ' +
-                'rotateY(' + (baseRY + (card._dragging ? dx * 0.05 : 0)) + 'deg) ' +
-                'rotateZ(' + rz + 'deg) ' +
-                'scale(' + (card._dragging ? 1.1 : hoverScale) + ')';
-
-              // Update shine position
-              var shine = card.querySelector('.float3d-shine');
-              if (shine) {
-                var sx = ((f3dTargetMX + 1) / 2) * 100;
-                var sy = ((f3dTargetMY + 1) / 2) * 100;
-                shine.style.setProperty('--shine-x', sx + '%');
-                shine.style.setProperty('--shine-y', sy + '%');
-              }
-            });
-
-            floatLoopRaf = requestAnimationFrame(floatLoopTick);
-          }
-
-          // Pause when out of view
-          var perfObs = new IntersectionObserver(function(entries) {
-            entries.forEach(function(entry) {
-              if (entry.isIntersecting) {
-                if (!floatLoopRaf && entranceDone) { floatLoopStart = performance.now(); floatLoopRaf = requestAnimationFrame(floatLoopTick); }
-              } else {
-                if (floatLoopRaf) { cancelAnimationFrame(floatLoopRaf); floatLoopRaf = null; }
-              }
-            });
-          }, { threshold: 0 });
-          perfObs.observe(float3dSection);
-        }
+        // 3D scene — will be initialized when cards are ready (see window.initFloat3DAnimations)
       }
 
       // FEATURED 3D TILT ON HOVER

@@ -7,7 +7,7 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/animejs@4.4.1/dist/bundles/anime.umd.min.js"></script>
+  <script src="js/anime.umd.min.js"></script>
   <link rel="stylesheet" href="css/styles.css">
   <style>
     .not-found { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 40px; }
@@ -19,7 +19,8 @@
     .not-found-line { width: 40px; height: 1px; background: rgba(201,169,110,0.2); margin: 28px auto 0; opacity: 0; }
   </style>
 </head>
-<body>
+<body class="no-js">
+  <script>document.body.classList.remove('no-js');</script>
 
   <canvas id="particles" style="position:fixed;inset:0;z-index:0;pointer-events:none;"></canvas>
 

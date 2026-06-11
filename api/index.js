@@ -55,102 +55,139 @@ function renderMarkdown(md) {
   return html;
 }
 
-module.exports = function handler(req, res) {
-  // API: post list
-  if (req.url === '/api/posts') {
-    const postsDir = path.join(ROOT, 'posts');
+// ===== Shared API helpers =====
+
+function getImageList(imgDir, urlPrefix) {
+  let meta = {};
+  try {
+    const raw = fs.readFileSync(path.join(imgDir, 'images.json'), 'utf-8');
+    JSON.parse(raw).forEach(m => { if (m.file) meta[m.file] = m; });
+  } catch {}
+
+  const list = [];
+  function makeEntry(f, src, cat, subfolder) {
+    const m = meta[f] || (subfolder ? meta[subfolder + '/' + f] : null) || {};
+    const entry = { src, title: m.title || path.parse(f).name, category: cat };
+    if (m.audio) entry.audio = m.audio;
+    return entry;
+  }
+
+  fs.readdirSync(imgDir).filter(f => IMG_RE.test(f)).sort().forEach(f => {
+    list.push(makeEntry(f, urlPrefix + '/' + encodeURIComponent(f), '', null));
+  });
+
+  fs.readdirSync(imgDir, { withFileTypes: true }).filter(d => d.isDirectory()).forEach(d => {
+    const subDir = path.join(imgDir, d.name);
     try {
-      const files = fs.readdirSync(postsDir).filter(f => f.endsWith('.md')).sort();
-      const posts = files.map(f => {
-        const raw = fs.readFileSync(path.join(postsDir, f), 'utf-8');
-        const { meta, body } = parseFrontmatter(raw);
-        const slug = f.replace(/\.md$/, '');
-        return {
-          slug,
-          title: meta.title || slug,
-          date: meta.date || '',
-          excerpt: meta.excerpt || '',
-          category: meta.category || '',
-          cover: meta.cover || '',
-          readingTime: readingTime(body)
-        };
-      }).sort((a, b) => b.date.localeCompare(a.date));
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(posts));
-    } catch {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end('[]');
-    }
+      fs.readdirSync(subDir).filter(f => IMG_RE.test(f)).sort().forEach(f => {
+        list.push(makeEntry(f, urlPrefix + '/' + encodeURIComponent(d.name) + '/' + encodeURIComponent(f), d.name, d.name));
+      });
+    } catch {}
+  });
+
+  return list;
+}
+
+function getPostList(postsDir) {
+  const files = fs.readdirSync(postsDir).filter(f => f.endsWith('.md')).sort();
+  return files.map(f => {
+    const raw = fs.readFileSync(path.join(postsDir, f), 'utf-8');
+    const { meta, body } = parseFrontmatter(raw);
+    const slug = f.replace(/\.md$/, '');
+    return {
+      slug,
+      title: meta.title || slug,
+      date: meta.date || '',
+      excerpt: meta.excerpt || '',
+      category: meta.category || '',
+      cover: meta.cover || '',
+      readingTime: readingTime(body)
+    };
+  }).sort((a, b) => b.date.localeCompare(a.date));
+}
+
+function getSinglePost(postsDir, slug) {
+  const filePath = path.join(postsDir, slug + '.md');
+  if (!filePath.startsWith(postsDir)) return null;
+  const raw = fs.readFileSync(filePath, 'utf-8');
+  const { meta, body } = parseFrontmatter(raw);
+  const html = renderMarkdown(body);
+  return { ...meta, slug, content: html, readingTime: readingTime(body) };
+}
+
+function sendJson(res, data) {
+  res.writeHead(200, { 'Content-Type': 'application/json' });
+  res.end(JSON.stringify(data));
+}
+
+function send403(res) {
+  res.writeHead(403); res.end('403 Forbidden');
+}
+
+function send404(res) {
+  const notFoundPath = path.join(ROOT, '404.html');
+  fs.readFile(notFoundPath, (err, data) => {
+    if (err) { res.writeHead(404); res.end('404 Not Found'); return; }
+    res.writeHead(404, { 'Content-Type': 'text/html' });
+    res.end(data);
+  });
+}
+
+module.exports = function handler(req, res) {
+  const urlPath = req.url.split('?')[0];
+
+  // --- Image API ---
+  if (req.url === '/api/images') {
+    try { sendJson(res, getImageList(path.join(ROOT, 'images'), 'images')); }
+    catch { sendJson(res, []); }
+    return;
+  }
+  if (req.url === '/void-api/images') {
+    try { sendJson(res, getImageList(path.join(ROOT, 'void-content/images'), 'void-content/images')); }
+    catch { sendJson(res, []); }
     return;
   }
 
-  // API: single post
+  // --- Post list API ---
+  if (req.url === '/api/posts') {
+    try { sendJson(res, getPostList(path.join(ROOT, 'posts'))); }
+    catch { sendJson(res, []); }
+    return;
+  }
+  if (req.url === '/void-api/posts') {
+    try { sendJson(res, getPostList(path.join(ROOT, 'void-content/posts'))); }
+    catch { sendJson(res, []); }
+    return;
+  }
+
+  // --- Single post API ---
   if (req.url.startsWith('/api/posts/')) {
     const slug = decodeURIComponent(req.url.replace('/api/posts/', '')).replace(/\.\./g, '');
-    const filePath = path.join(ROOT, 'posts', slug + '.md');
-    if (!filePath.startsWith(path.join(ROOT, 'posts'))) {
-      res.writeHead(403); res.end('403 Forbidden'); return;
-    }
     try {
-      const raw = fs.readFileSync(filePath, 'utf-8');
-      const { meta, body } = parseFrontmatter(raw);
-      const html = renderMarkdown(body);
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ ...meta, slug, content: html, readingTime: readingTime(body) }));
-    } catch {
-      res.writeHead(404); res.end('404 Not Found');
-    }
+      const post = getSinglePost(path.join(ROOT, 'posts'), slug);
+      if (!post) { send403(res); return; }
+      sendJson(res, post);
+    } catch { send404(res); }
+    return;
+  }
+  if (req.url.startsWith('/void-api/posts/')) {
+    const slug = decodeURIComponent(req.url.replace('/void-api/posts/', '')).replace(/\.\./g, '');
+    try {
+      const post = getSinglePost(path.join(ROOT, 'void-content/posts'), slug);
+      if (!post) { send403(res); return; }
+      post.content = post.content.replace(/src="images\//g, 'src="void-content/images/');
+      sendJson(res, post);
+    } catch { res.writeHead(404); res.end('404'); }
     return;
   }
 
-  // API: image list
-  if (req.url === '/api/images') {
-    const imgDir = path.join(ROOT, 'images');
-    try {
-      let meta = {};
-      try {
-        const raw = fs.readFileSync(path.join(imgDir, 'images.json'), 'utf-8');
-        JSON.parse(raw).forEach(m => { if (m.file) meta[m.file] = m; });
-      } catch {}
-
-      const list = [];
-      function makeEntry(f, src, cat) {
-        const m = meta[f] || {};
-        const entry = { src, title: m.title || path.parse(f).name, category: cat };
-        if (m.audio) entry.audio = m.audio;
-        return entry;
-      }
-
-      fs.readdirSync(imgDir).filter(f => IMG_RE.test(f)).sort().forEach(f => {
-        list.push(makeEntry(f, 'images/' + encodeURIComponent(f), ''));
-      });
-
-      fs.readdirSync(imgDir, { withFileTypes: true }).filter(d => d.isDirectory()).forEach(d => {
-        const subDir = path.join(imgDir, d.name);
-        try {
-          fs.readdirSync(subDir).filter(f => IMG_RE.test(f)).sort().forEach(f => {
-            list.push(makeEntry(f, 'images/' + encodeURIComponent(d.name) + '/' + encodeURIComponent(f), d.name));
-          });
-        } catch {}
-      });
-
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(list));
-    } catch {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end('[]');
-    }
-    return;
-  }
-
-  // Sitemap
+  // --- Sitemap ---
   if (req.url === '/sitemap.xml') {
-    const postsDir = path.join(ROOT, 'posts');
     const host = req.headers.host || 'localhost';
     const base = 'https://' + host;
     let urls = ['/', '/blog'];
     try {
-      fs.readdirSync(postsDir).filter(f => f.endsWith('.md')).forEach(f => {
+      fs.readdirSync(path.join(ROOT, 'posts')).filter(f => f.endsWith('.md')).forEach(f => {
         urls.push('/post?slug=' + f.replace(/\.md$/, ''));
       });
     } catch {}
@@ -163,15 +200,14 @@ module.exports = function handler(req, res) {
     return;
   }
 
-  // RSS
+  // --- RSS ---
   if (req.url === '/rss.xml' || req.url === '/rss') {
-    const postsDir = path.join(ROOT, 'posts');
     const host = req.headers.host || 'localhost';
     const base = 'https://' + host;
     try {
-      const files = fs.readdirSync(postsDir).filter(f => f.endsWith('.md')).sort();
+      const files = fs.readdirSync(path.join(ROOT, 'posts')).filter(f => f.endsWith('.md')).sort();
       const items = files.map(f => {
-        const raw = fs.readFileSync(path.join(postsDir, f), 'utf-8');
+        const raw = fs.readFileSync(path.join(ROOT, 'posts', f), 'utf-8');
         const { meta, body } = parseFrontmatter(raw);
         const slug = f.replace(/\.md$/, '');
         const title = meta.title || slug;
@@ -207,26 +243,15 @@ module.exports = function handler(req, res) {
     return;
   }
 
-  // Static files
-  const urlPath = req.url.split('?')[0];
+  // --- Static files ---
   let safePath = (urlPath === '/' ? 'index.html' : decodeURIComponent(urlPath).replace(/^\/+/, ''));
   if (!path.extname(safePath)) safePath += '.html';
   const filePath = path.resolve(path.join(ROOT, safePath));
 
-  if (!filePath.startsWith(ROOT)) {
-    res.writeHead(403); res.end('403 Forbidden'); return;
-  }
+  if (!filePath.startsWith(ROOT)) { send403(res); return; }
 
   fs.readFile(filePath, (err, data) => {
-    if (err) {
-      const notFoundPath = path.join(ROOT, '404.html');
-      fs.readFile(notFoundPath, (err2, data2) => {
-        if (err2) { res.writeHead(404); res.end('404 Not Found'); return; }
-        res.writeHead(404, { 'Content-Type': 'text/html' });
-        res.end(data2);
-      });
-      return;
-    }
+    if (err) { send404(res); return; }
     const ext = path.extname(filePath).toLowerCase();
     res.writeHead(200, { 'Content-Type': MIME[ext] || 'application/octet-stream' });
     res.end(data);

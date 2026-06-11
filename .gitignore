@@ -1,6 +1,30 @@
+# Dependencies
 node_modules/
+
+# OS files
 .DS_Store
 Thumbs.db
+desktop.ini
+
+# Logs
 *.log
+
+# Environment
 .env
+.env.local
+
+# IDE
+.vscode/
+.idea/
+
+# Tool caches
 .codegraph/
+.reasonix/
+
+# Archives (don't track compressed backups)
+*.7z
+*.zip
+*.tar.gz
+
+# Large binary overrides (if needed)
+# To track specific large files, use Git LFS

@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="nightSky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#050510"/>
+      <stop offset="100%" stop-color="#0a0a1a"/>
+    </linearGradient>
+    <filter id="bloom"><feGaussianBlur stdDeviation="4"/></filter>
+    <filter id="bigBloom"><feGaussianBlur stdDeviation="15"/></filter>
+  </defs>
+  <rect width="800" height="600" fill="url(#nightSky)"/>
+  <!-- Distant buildings silhouette -->
+  <rect x="50" y="250" width="60" height="350" fill="#0a0a12"/>
+  <rect x="120" y="200" width="45" height="400" fill="#08080f"/>
+  <rect x="175" y="280" width="55" height="320" fill="#0a0a12"/>
+  <rect x="240" y="180" width="40" height="420" fill="#08080f"/>
+  <rect x="290" y="230" width="70" height="370" fill="#0a0a12"/>
+  <rect x="370" y="160" width="50" height="440" fill="#08080f"/>
+  <rect x="430" y="220" width="60" height="380" fill="#0a0a12"/>
+  <rect x="500" y="190" width="45" height="410" fill="#08080f"/>
+  <rect x="555" y="260" width="55" height="340" fill="#0a0a12"/>
+  <rect x="620" y="210" width="40" height="390" fill="#08080f"/>
+  <rect x="670" y="240" width="60" height="360" fill="#0a0a12"/>
+  <rect x="740" y="270" width="60" height="330" fill="#08080f"/>
+  <!-- Window lights -->
+  <rect x="60" y="270" width="8" height="6" fill="#c9a96e" opacity="0.6"/>
+  <rect x="80" y="290" width="8" height="6" fill="#c9a96e" opacity="0.4"/>
+  <rect x="60" y="320" width="8" height="6" fill="#c9a96e" opacity="0.5"/>
+  <rect x="130" y="220" width="6" height="5" fill="#c9a96e" opacity="0.5"/>
+  <rect x="145" y="250" width="6" height="5" fill="#c9a96e" opacity="0.3"/>
+  <rect x="130" y="300" width="6" height="5" fill="#c9a96e" opacity="0.6"/>
+  <rect x="250" y="200" width="5" height="4" fill="#c9a96e" opacity="0.4"/>
+  <rect x="260" y="230" width="5" height="4" fill="#c9a96e" opacity="0.5"/>
+  <rect x="300" y="250" width="10" height="6" fill="#c9a96e" opacity="0.5"/>
+  <rect x="320" y="280" width="10" height="6" fill="#c9a96e" opacity="0.3"/>
+  <rect x="300" y="310" width="10" height="6" fill="#c9a96e" opacity="0.6"/>
+  <rect x="380" y="180" width="8" height="5" fill="#c9a96e" opacity="0.5"/>
+  <rect x="395" y="210" width="8" height="5" fill="#c9a96e" opacity="0.4"/>
+  <rect x="380" y="250" width="8" height="5" fill="#c9a96e" opacity="0.6"/>
+  <rect x="440" y="240" width="10" height="6" fill="#c9a96e" opacity="0.4"/>
+  <rect x="460" y="270" width="10" height="6" fill="#c9a96e" opacity="0.5"/>
+  <rect x="510" y="210" width="6" height="5" fill="#c9a96e" opacity="0.5"/>
+  <rect x="525" y="250" width="6" height="5" fill="#c9a96e" opacity="0.3"/>
+  <rect x="565" y="280" width="8" height="5" fill="#c9a96e" opacity="0.4"/>
+  <rect x="630" y="230" width="6" height="5" fill="#c9a96e" opacity="0.5"/>
+  <rect x="645" y="270" width="6" height="5" fill="#c9a96e" opacity="0.3"/>
+  <rect x="680" y="260" width="10" height="6" fill="#c9a96e" opacity="0.4"/>
+  <rect x="700" y="290" width="10" height="6" fill="#c9a96e" opacity="0.5"/>
+  <rect x="750" y="290" width="8" height="5" fill="#c9a96e" opacity="0.3"/>
+  <!-- Ground reflection -->
+  <rect x="0" y="520" width="800" height="80" fill="#c9a96e" opacity="0.02"/>
+  <!-- Neon signs -->
+  <rect x="310" y="240" width="30" height="3" fill="#c9a96e" opacity="0.8" filter="url(#bloom)"/>
+  <rect x="450" y="230" width="25" height="3" fill="#c9a96e" opacity="0.7" filter="url(#bloom)"/>
+  <!-- Moon -->
+  <circle cx="650" cy="80" r="20" fill="#c9a96e" opacity="0.15"/>
+  <circle cx="650" cy="80" r="15" fill="#c9a96e" opacity="0.08" filter="url(#bigBloom)"/>
+  <!-- Stars -->
+  <circle cx="100" cy="50" r="1" fill="#c9a96e" opacity="0.3"/>
+  <circle cx="300" cy="30" r="0.8" fill="#c9a96e" opacity="0.25"/>
+  <circle cx="500" cy="60" r="1.2" fill="#c9a96e" opacity="0.2"/>
+  <circle cx="200" cy="100" r="0.6" fill="#c9a96e" opacity="0.2"/>
+  <circle cx="450" cy="40" r="0.8" fill="#c9a96e" opacity="0.3"/>
+</svg>

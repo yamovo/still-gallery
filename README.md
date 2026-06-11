@@ -22,7 +22,6 @@ npm start
 # → opens http://localhost:3456
 
 # Or double-click start.bat (Windows)
-# Or right-click start.ps1 → Run with PowerShell
 ```
 
 ## Project Structure
@@ -36,8 +35,7 @@ npm start
 │   └── gallery.js      # Image loading, rendering, lightbox, drag scroll
 ├── images/             # Drop your images here
 ├── server.js           # Node.js static file server
-├── start.bat           # Windows quick-start
-└── start.ps1           # PowerShell fallback server
+└── start.bat           # Windows quick-start
 ```
 
 ## Adding Images

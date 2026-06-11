@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="faceGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c9a96e" stop-opacity="0.4"/>
+      <stop offset="100%" stop-color="#c9a96e" stop-opacity="0.1"/>
+    </linearGradient>
+    <clipPath id="faceClip">
+      <ellipse cx="400" cy="280" rx="140" ry="180"/>
+    </clipPath>
+    <filter id="portraitBlur"><feGaussianBlur stdDeviation="6"/></filter>
+  </defs>
+  <rect width="800" height="600" fill="#080808"/>
+  <!-- Background texture lines -->
+  <line x1="0" y1="100" x2="800" y2="100" stroke="#c9a96e" stroke-opacity="0.02" stroke-width="1"/>
+  <line x1="0" y1="200" x2="800" y2="200" stroke="#c9a96e" stroke-opacity="0.02" stroke-width="1"/>
+  <line x1="0" y1="300" x2="800" y2="300" stroke="#c9a96e" stroke-opacity="0.02" stroke-width="1"/>
+  <line x1="0" y1="400" x2="800" y2="400" stroke="#c9a96e" stroke-opacity="0.02" stroke-width="1"/>
+  <line x1="0" y1="500" x2="800" y2="500" stroke="#c9a96e" stroke-opacity="0.02" stroke-width="1"/>
+  <!-- Head outline (abstract) -->
+  <ellipse cx="400" cy="260" rx="100" ry="130" fill="none" stroke="#c9a96e" stroke-opacity="0.2" stroke-width="1.5"/>
+  <!-- Neck -->
+  <line x1="370" y1="380" x2="360" y2="460" stroke="#c9a96e" stroke-opacity="0.12" stroke-width="1.5"/>
+  <line x1="430" y1="380" x2="440" y2="460" stroke="#c9a96e" stroke-opacity="0.12" stroke-width="1.5"/>
+  <!-- Shoulders hint -->
+  <path d="M360,460 Q300,480 200,500" fill="none" stroke="#c9a96e" stroke-opacity="0.08" stroke-width="1.5"/>
+  <path d="M440,460 Q500,480 600,500" fill="none" stroke="#c9a96e" stroke-opacity="0.08" stroke-width="1.5"/>
+  <!-- Half-face light/shadow split -->
+  <clipPath id="leftHalf"><rect x="0" y="0" width="400" height="600"/></clipPath>
+  <g clip-path="url(#leftHalf)">
+    <ellipse cx="400" cy="260" rx="100" ry="130" fill="#c9a96e" opacity="0.04"/>
+  </g>
+  <!-- Eye lines -->
+  <line x1="340" y1="240" x2="380" y2="240" stroke="#c9a96e" stroke-opacity="0.3" stroke-width="1"/>
+  <circle cx="360" cy="240" r="3" fill="#c9a96e" opacity="0.25"/>
+  <line x1="420" y1="238" x2="460" y2="238" stroke="#c9a96e" stroke-opacity="0.15" stroke-width="1"/>
+  <!-- Nose line -->
+  <path d="M400,240 L395,290 L400,300" fill="none" stroke="#c9a96e" stroke-opacity="0.15" stroke-width="0.8"/>
+  <!-- Lip line -->
+  <path d="M370,320 Q400,330 430,320" fill="none" stroke="#c9a96e" stroke-opacity="0.12" stroke-width="0.8"/>
+  <!-- Geometric overlay triangles -->
+  <polygon points="400,130 500,280 300,280" fill="none" stroke="#c9a96e" stroke-opacity="0.06" stroke-width="0.5"/>
+  <polygon points="400,100 530,300 270,300" fill="none" stroke="#c9a96e" stroke-opacity="0.04" stroke-width="0.5"/>
+  <!-- Light spill on right side -->
+  <ellipse cx="480" cy="250" rx="60" ry="100" fill="#c9a96e" opacity="0.03" filter="url(#portraitBlur)"/>
+  <!-- Scattered dots -->
+  <circle cx="300" cy="150" r="1" fill="#c9a96e" opacity="0.3"/>
+  <circle cx="500" cy="180" r="1.2" fill="#c9a96e" opacity="0.2"/>
+  <circle cx="250" cy="400" r="0.8" fill="#c9a96e" opacity="0.25"/>
+  <circle cx="550" cy="350" r="1" fill="#c9a96e" opacity="0.2"/>
+</svg>

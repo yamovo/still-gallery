@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <radialGradient id="backlight" cx="50%" cy="45%" r="40%">
+      <stop offset="0%" stop-color="#c9a96e" stop-opacity="0.4"/>
+      <stop offset="60%" stop-color="#c9a96e" stop-opacity="0.1"/>
+      <stop offset="100%" stop-color="#080808" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="silhouetteGlow"><feGaussianBlur stdDeviation="20"/></filter>
+    <filter id="rimBlur"><feGaussianBlur stdDeviation="3"/></filter>
+  </defs>
+  <rect width="800" height="600" fill="#080808"/>
+  <!-- Backlight glow -->
+  <circle cx="400" cy="270" r="250" fill="url(#backlight)"/>
+  <circle cx="400" cy="270" r="150" fill="#c9a96e" opacity="0.04" filter="url(#silhouetteGlow)"/>
+  <!-- Person silhouette -->
+  <path d="M370,180 Q370,150 400,140 Q430,150 430,180 L430,190 Q445,195 450,210 L450,280 Q450,290 440,290 L430,290 L430,380 Q430,400 420,410 L410,420 L410,500 Q410,510 400,510 L390,510 L390,420 L380,410 Q370,400 370,380 L370,290 L360,290 Q350,290 350,280 L350,210 Q355,195 370,190 Z" fill="#0a0a0a"/>
+  <!-- Rim light on person -->
+  <path d="M430,180 Q430,150 400,140 Q370,150 370,180" fill="none" stroke="#c9a96e" stroke-opacity="0.3" stroke-width="1.5" filter="url(#rimBlur)"/>
+  <path d="M450,210 L450,280 Q450,290 440,290" fill="none" stroke="#c9a96e" stroke-opacity="0.2" stroke-width="1" filter="url(#rimBlur)"/>
+  <path d="M430,380 Q430,400 420,410 L410,420 L410,500" fill="none" stroke="#c9a96e" stroke-opacity="0.15" stroke-width="1" filter="url(#rimBlur)"/>
+  <!-- Ground -->
+  <line x1="0" y1="520" x2="800" y2="520" stroke="#c9a96e" stroke-opacity="0.06" stroke-width="0.5"/>
+  <!-- Ground light spill -->
+  <ellipse cx="400" cy="520" rx="120" ry="15" fill="#c9a96e" opacity="0.04" filter="url(#silhouetteGlow)"/>
+  <!-- Floating light particles -->
+  <circle cx="300" cy="200" r="1.5" fill="#c9a96e" opacity="0.4"/>
+  <circle cx="500" cy="180" r="1" fill="#c9a96e" opacity="0.3"/>
+  <circle cx="350" cy="350" r="1.2" fill="#c9a96e" opacity="0.25"/>
+  <circle cx="460" cy="400" r="0.8" fill="#c9a96e" opacity="0.2"/>
+  <circle cx="250" cy="300" r="1" fill="#c9a96e" opacity="0.3"/>
+  <circle cx="550" cy="320" r="1.3" fill="#c9a96e" opacity="0.2"/>
+  <!-- Horizon gradient -->
+  <rect x="0" y="500" width="800" height="100" fill="#c9a96e" opacity="0.015"/>
+</svg>

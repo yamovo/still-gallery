@@ -1,6 +1,10 @@
 var posts = [];
 
-// Loader (anime.js timeline with scramble)
+// Auto-detect void mode from URL
+var isVoidMode = window.location.pathname.indexOf('/void') === 0;
+var apiPrefix = isVoidMode ? '/void-api' : '/api';
+var postBase = isVoidMode ? '/void-post' : '/post';
+
 // Loader (anime.js timeline with scramble)
 (function() {
   var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -75,13 +79,27 @@ var posts = [];
 })();
 
 // Fetch posts and render list
-fetch('/api/posts')
-  .then(function(r) { return r.json(); })
+fetch(apiPrefix + '/posts')
+  .then(function(r) {
+    if (!r.ok) throw new Error('API returned ' + r.status);
+    return r.json();
+  })
   .then(function(data) {
     posts = data;
     renderList();
   })
-  .catch(function() { renderList(); });
+  .catch(function(err) {
+    console.warn('Failed to load posts:', err);
+    posts = [];
+    renderList();
+    // Show error hint in the empty state
+    var emptyEl = document.getElementById('blogEmpty');
+    if (emptyEl) {
+      emptyEl.querySelector('h3').textContent = 'Could not load posts';
+      emptyEl.querySelector('p').textContent = 'Please try refreshing the page';
+    }
+    renderList();
+  });
 
 function renderList() {
   var container = document.getElementById('blogList');
@@ -100,8 +118,6 @@ function renderList() {
   posts.forEach(function(post, i) {
     var card = document.createElement('article');
     card.className = 'post-card';
-    card.style.animationDelay = (i * 0.1) + 's';
-
     var readingTime = post.readingTime ? post.readingTime + ' min read' : '';
     var formattedDate = '';
     if (post.date) {
@@ -109,9 +125,9 @@ function renderList() {
       formattedDate = d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
     }
 
-    var innerHTML = '<a href="/post?slug=' + post.slug + '" class="post-card-link" style="text-decoration:none;color:inherit;">';
+    var innerHTML = '<a href="' + postBase + '?slug=' + post.slug + '" class="post-card-link" style="text-decoration:none;color:inherit;">';
     if (post.cover) {
-      innerHTML += '<div class="post-card-cover"><img src="' + post.cover + '" alt="" loading="lazy"></div>';
+      innerHTML += '<div class="post-card-cover"><img src="' + post.cover + '" alt="' + (post.title || '') + '" loading="lazy"></div>';
     }
     innerHTML += '<div class="post-card-body">';
     innerHTML += '<div class="post-card-meta">';
@@ -128,7 +144,6 @@ function renderList() {
     inner.appendChild(card);
   });
 
-  // Animate cards in
   anime.animate('.post-card', {
     opacity: [0, 1],
     translateY: [30, 0],
@@ -136,18 +151,6 @@ function renderList() {
     ease: 'outCubic',
     delay: anime.stagger(100, { start: 800 })
   });
-}
-
-// Reveal animations on scroll
-if (self.IntersectionObserver) {
-  var observer = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (entry.isIntersecting) {
-        entry.target.style.opacity = '1';
-        entry.target.style.transform = 'translateY(0)';
-      }
-    });
-  }, { threshold: 0.15 });
 }
 
 // Magnetic hover (anime.js)

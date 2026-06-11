@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="beam" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c9a96e" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#c9a96e" stop-opacity="0"/>
+    </linearGradient>
+    <filter id="softBlur"><feGaussianBlur stdDeviation="2"/></filter>
+  </defs>
+  <rect width="800" height="600" fill="#080808"/>
+  <!-- Light beams from top-left -->
+  <polygon points="0,0 200,0 600,600 400,600" fill="#c9a96e" opacity="0.03"/>
+  <polygon points="80,0 180,0 580,600 480,600" fill="#c9a96e" opacity="0.04"/>
+  <polygon points="160,0 220,0 620,600 560,600" fill="#c9a96e" opacity="0.025"/>
+  <!-- Vertical shadow bars (Venetian blinds effect) -->
+  <rect x="100" y="0" width="40" height="600" fill="#080808" opacity="0.7"/>
+  <rect x="200" y="0" width="40" height="600" fill="#080808" opacity="0.65"/>
+  <rect x="300" y="0" width="40" height="600" fill="#080808" opacity="0.6"/>
+  <rect x="400" y="0" width="40" height="600" fill="#080808" opacity="0.55"/>
+  <rect x="500" y="0" width="40" height="600" fill="#080808" opacity="0.5"/>
+  <rect x="600" y="0" width="40" height="600" fill="#080808" opacity="0.45"/>
+  <rect x="700" y="0" width="40" height="600" fill="#080808" opacity="0.4"/>
+  <!-- Horizontal light strips between bars -->
+  <rect x="0" y="0" width="800" height="25" fill="#c9a96e" opacity="0.06"/>
+  <rect x="0" y="60" width="800" height="25" fill="#c9a96e" opacity="0.055"/>
+  <rect x="0" y="120" width="800" height="25" fill="#c9a96e" opacity="0.05"/>
+  <rect x="0" y="180" width="800" height="25" fill="#c9a96e" opacity="0.045"/>
+  <rect x="0" y="240" width="800" height="25" fill="#c9a96e" opacity="0.04"/>
+  <rect x="0" y="300" width="800" height="25" fill="#c9a96e" opacity="0.035"/>
+  <rect x="0" y="360" width="800" height="25" fill="#c9a96e" opacity="0.03"/>
+  <rect x="0" y="420" width="800" height="25" fill="#c9a96e" opacity="0.025"/>
+  <rect x="0" y="480" width="800" height="25" fill="#c9a96e" opacity="0.02"/>
+  <rect x="0" y="540" width="800" height="25" fill="#c9a96e" opacity="0.015"/>
+  <!-- Floor shadow gradient -->
+  <rect x="0" y="500" width="800" height="100" fill="url(#beam)"/>
+  <!-- Dust particles in light -->
+  <circle cx="250" cy="180" r="1.5" fill="#c9a96e" opacity="0.4" filter="url(#softBlur)"/>
+  <circle cx="450" cy="280" r="1" fill="#c9a96e" opacity="0.35" filter="url(#softBlur)"/>
+  <circle cx="350" cy="120" r="1.2" fill="#c9a96e" opacity="0.3" filter="url(#softBlur)"/>
+  <circle cx="550" cy="350" r="0.8" fill="#c9a96e" opacity="0.25" filter="url(#softBlur)"/>
+  <circle cx="150" cy="400" r="1" fill="#c9a96e" opacity="0.3" filter="url(#softBlur)"/>
+</svg>

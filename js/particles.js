@@ -24,9 +24,8 @@
     mouseX = -9999;
     mouseY = -9999;
   });
-  document.addEventListener('mousedown', function(e) {
+  document.addEventListener('mousedown', function() {
     mouseDown = true;
-    e.preventDefault();
   });
   document.addEventListener('mouseup', function() { mouseDown = false; });
   // Block context menu so long-press doesn't trigger browser menu

@@ -31,7 +31,8 @@
     <a href="/" class="nav-logo" style="text-decoration:none;color:inherit;">STILL</a>
     <div class="nav-links">
       <a class="nav-link magnetic" href="#work">Gallery</a>
-      <a class="nav-link magnetic" href="/blog">Writing</a>
+      <a class="nav-link magnetic" href="/void-blog">Writing</a>
+      <a class="nav-link magnetic void-back" href="/" style="color:var(--gold);border:1px solid rgba(201,169,110,0.3);padding:4px 12px;border-radius:2px;">&larr; Back</a>
     </div>
   </nav>
 
@@ -66,7 +67,7 @@
   <section class="h-section" id="writing">
     <div class="h-header">
       <h2>Recent <em>Writing</em></h2>
-      <a href="/blog" class="h-more magnetic">View All &rarr;</a>
+      <a href="/void-blog" class="h-more magnetic">View All &rarr;</a>
     </div>
     <div class="h-track" id="writingTrack"></div>
   </section>
@@ -101,31 +102,14 @@
       <div class="lb-title" id="lbTitle"></div>
       <div class="lb-counter" id="lbCounter"></div>
     </div>
+    <button class="lb-mute magnetic" id="lbMute">
+      <svg class="lb-mute-icon" id="lbMuteIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M11 5L6 9H2v6h4l5 4V5z"/><path d="M19.07 4.93a10 10 0 010 14.14M15.54 8.46a5 5 0 010 7.07" id="lbMuteWaves"/></svg>
+    </button>
+    <audio id="lbAudio" loop preload="auto"></audio>
   </div>
 
   <script src="js/particles.js"></script>
   <script src="js/animations.js"></script>
   <script src="js/gallery.js"></script>
-
-  <div class="glitch-overlay" id="glitchOverlay"></div>
-  <script>
-  (function() {
-    var logo = document.querySelector('.nav-logo');
-    if (!logo) return;
-    var clicks = [];
-    logo.addEventListener('click', function(e) {
-      e.preventDefault();
-      var now = Date.now();
-      clicks.push(now);
-      clicks = clicks.filter(function(t) { return now - t < 2000; });
-      if (clicks.length >= 5) {
-        clicks = [];
-        var overlay = document.getElementById('glitchOverlay');
-        overlay.classList.add('active');
-        setTimeout(function() { window.location.href = '/void'; }, 800);
-      }
-    });
-  })();
-  </script>
 </body>
 </html>

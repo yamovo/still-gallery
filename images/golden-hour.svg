@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#1a0a2e"/>
+      <stop offset="40%" stop-color="#4a1942"/>
+      <stop offset="70%" stop-color="#c9a96e" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#c9a96e" stop-opacity="0.2"/>
+    </linearGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.9"/>
+      <stop offset="50%" stop-color="#c9a96e"/>
+      <stop offset="100%" stop-color="#c9a96e" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#c9a96e" stop-opacity="0.5"/>
+      <stop offset="100%" stop-color="#c9a96e" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="glow"><feGaussianBlur stdDeviation="12"/></filter>
+  </defs>
+  <rect width="800" height="600" fill="url(#sky)"/>
+  <!-- Sun -->
+  <circle cx="400" cy="380" r="120" fill="url(#sunGlow)" filter="url(#glow)"/>
+  <circle cx="400" cy="380" r="40" fill="url(#sun)"/>
+  <!-- Horizon line -->
+  <line x1="0" y1="400" x2="800" y2="400" stroke="#c9a96e" stroke-opacity="0.15" stroke-width="1"/>
+  <!-- Landscape silhouettes -->
+  <path d="M0,400 L50,380 L120,390 L180,360 L250,375 L320,350 L380,365 L400,340 L420,365 L480,350 L550,375 L620,360 L680,390 L750,380 L800,400 L800,600 L0,600 Z" fill="#0a0a0a" opacity="0.9"/>
+  <path d="M0,400 L80,385 L160,395 L240,370 L340,385 L400,355 L460,385 L560,370 L640,395 L720,385 L800,400 L800,600 L0,600 Z" fill="#080808"/>
+  <!-- Sun rays -->
+  <line x1="400" y1="380" x2="200" y2="100" stroke="#c9a96e" stroke-opacity="0.05" stroke-width="2"/>
+  <line x1="400" y1="380" x2="300" y2="80" stroke="#c9a96e" stroke-opacity="0.06" stroke-width="1.5"/>
+  <line x1="400" y1="380" x2="500" y2="90" stroke="#c9a96e" stroke-opacity="0.05" stroke-width="1.5"/>
+  <line x1="400" y1="380" x2="600" y2="110" stroke="#c9a96e" stroke-opacity="0.04" stroke-width="2"/>
+  <line x1="400" y1="380" x2="350" y2="50" stroke="#c9a96e" stroke-opacity="0.07" stroke-width="1"/>
+  <line x1="400" y1="380" x2="450" y2="60" stroke="#c9a96e" stroke-opacity="0.06" stroke-width="1"/>
+  <!-- Cloud wisps -->
+  <ellipse cx="200" cy="200" rx="120" ry="8" fill="#c9a96e" opacity="0.04" filter="url(#soft)"/>
+  <ellipse cx="600" cy="180" rx="100" ry="6" fill="#c9a96e" opacity="0.03" filter="url(#soft)"/>
+  <ellipse cx="350" cy="250" rx="80" ry="5" fill="#c9a96e" opacity="0.035" filter="url(#soft)"/>
+  <!-- Birds -->
+  <path d="M300,150 Q305,145 310,150" fill="none" stroke="#1a0a2e" stroke-width="1.5" opacity="0.4"/>
+  <path d="M320,140 Q325,135 330,140" fill="none" stroke="#1a0a2e" stroke-width="1.2" opacity="0.35"/>
+  <path d="M340,155 Q344,151 348,155" fill="none" stroke="#1a0a2e" stroke-width="1" opacity="0.3"/>
+</svg>

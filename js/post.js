@@ -1,3 +1,9 @@
+// Auto-detect void mode from URL
+var isVoidMode = window.location.pathname.indexOf('/void') === 0;
+var apiPrefix = isVoidMode ? '/void-api' : '/api';
+var postBase = isVoidMode ? '/void-post' : '/post';
+var blogBase = isVoidMode ? '/void-blog' : '/blog';
+
 // Loader (anime.js timeline with scramble)
 (function() {
   var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -76,19 +82,22 @@ var params = new URLSearchParams(window.location.search);
 var slug = params.get('slug') || '';
 
 if (!slug) {
-  document.getElementById('postArticle').innerHTML = '<div class="empty"><div class="empty-icon">&#9998;</div><h3>No post specified</h3><p>Go to <a href="/blog">Writing</a></p></div>';
+  document.getElementById('postArticle').innerHTML = '<div class="empty"><div class="empty-icon">&#9998;</div><h3>No post specified</h3><p>Go to <a href="' + blogBase + '">Writing</a></p></div>';
 } else {
-  fetch('/api/posts/' + slug)
-    .then(function(r) { return r.json(); })
+  fetch(apiPrefix + '/posts/' + slug)
+    .then(function(r) {
+      if (!r.ok) throw new Error('API returned ' + r.status);
+      return r.json();
+    })
     .then(renderPost)
-    .catch(function() {
-      document.getElementById('postArticle').innerHTML = '<div class="empty"><div class="empty-icon">&#9998;</div><h3>Post not found</h3><p>Go to <a href="/blog">Writing</a></p></div>';
+    .catch(function(err) {
+      console.warn('Failed to load post:', err);
+      document.getElementById('postArticle').innerHTML = '<div class="empty"><div class="empty-icon">&#9998;</div><h3>Post not found</h3><p>Go to <a href="' + blogBase + '">Writing</a></p></div>';
     });
 }
 
 function renderPost(post) {
   document.title = post.title + ' - STILL';
-  // Update meta tags for SEO
   var desc = post.excerpt || '';
   var metaDesc = document.getElementById('metaDesc');
   if (metaDesc) metaDesc.setAttribute('content', desc);
@@ -137,10 +146,11 @@ function renderPost(post) {
     var wrap = document.getElementById('postCoverWrap');
     wrap.style.display = '';
     document.getElementById('postCover').src = post.cover;
+    document.getElementById('postCover').alt = post.title || '';
   }
 
   // Fetch all posts for prev/next navigation
-  fetch('/api/posts')
+  fetch(apiPrefix + '/posts')
     .then(function(r) { return r.json(); })
     .then(function(allPosts) {
       var idx = -1;
@@ -152,14 +162,14 @@ function renderPost(post) {
       var html = '';
       if (idx < allPosts.length - 1) {
         var next = allPosts[idx + 1];
-        html += '<a href="/post?slug=' + next.slug + '" class="post-nav-link post-nav-next">';
+        html += '<a href="' + postBase + '?slug=' + next.slug + '" class="post-nav-link post-nav-next">';
         html += '<span class="post-nav-label">Newer</span>';
         html += '<span class="post-nav-title">' + next.title + '</span>';
         html += '</a>';
       }
       if (idx > 0) {
         var prev = allPosts[idx - 1];
-        html += '<a href="/post?slug=' + prev.slug + '" class="post-nav-link post-nav-prev">';
+        html += '<a href="' + postBase + '?slug=' + prev.slug + '" class="post-nav-link post-nav-prev">';
         html += '<span class="post-nav-label">Older</span>';
         html += '<span class="post-nav-title">' + prev.title + '</span>';
         html += '</a>';
@@ -167,7 +177,7 @@ function renderPost(post) {
       nav.innerHTML = html;
     });
 
-  // Fade in content with staggered elements
+  // Fade in content
   anime.animate('#postArticle', {
     opacity: [0, 1],
     translateY: [20, 0],
@@ -184,7 +194,7 @@ function renderPost(post) {
     var titleSpans = [];
     titleText.split('').forEach(function(ch) {
       var s = document.createElement('span');
-      s.textContent = ch === ' ' ? ' ' : ch;
+      s.textContent = ch === ' ' ? '\u00a0' : ch;
       s.style.display = 'inline-block';
       s.style.opacity = '0';
       s.style.transform = 'translateY(30px) rotateX(40deg)';
@@ -241,7 +251,7 @@ function renderPost(post) {
 // Lightbox close (anime.js animated)
 (function() {
   var lb = document.getElementById('postLightbox');
-  function closeLB() {
+  function closePostLB() {
     var lbImg = document.getElementById('postLbImg');
     anime.animate(lbImg, {
       opacity: [1, 0],
@@ -254,12 +264,12 @@ function renderPost(post) {
       }
     });
   }
-  document.getElementById('postLbClose').addEventListener('click', closeLB);
+  document.getElementById('postLbClose').addEventListener('click', closePostLB);
   lb.addEventListener('click', function(e) {
-    if (e.target === e.currentTarget) closeLB();
+    if (e.target === e.currentTarget) closePostLB();
   });
   document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape' && lb.classList.contains('active')) closeLB();
+    if (e.key === 'Escape' && lb.classList.contains('active')) closePostLB();
   });
 })();
 

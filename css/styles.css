@@ -129,8 +129,7 @@
     .float3d-scene { position: relative; width: 100%; min-height: 100vh; perspective: 2000px; perspective-origin: 50% 50%; z-index: 2; display: flex; align-items: center; justify-content: center; padding: 160px 40px 120px; }
     .float3d-stage { position: relative; width: 100%; max-width: 1400px; height: 80vh; min-height: 600px; transform-style: preserve-3d; }
     .float3d-card { position: absolute; cursor: pointer; transform-style: preserve-3d; will-change: transform; opacity: 0; }
-    .float3d-card-inner { position: relative; transform-style: preserve-3d; }
-    .float3d-card-inner { background: #111; border-radius: 6px; overflow: hidden; width: 100%; height: 100%; }
+    .float3d-card-inner { position: relative; transform-style: preserve-3d; background: #111; border-radius: 6px; overflow: hidden; width: 100%; height: 100%; }
     .float3d-card img { display: block; border-radius: 6px; width: 100%; height: 100%; object-fit: cover; box-shadow: 0 25px 80px rgba(0,0,0,0.7), 0 0 0 1px rgba(201,169,110,0.06), 0 0 60px rgba(0,0,0,0.4); transition: box-shadow 0.5s ease, filter 0.5s ease; }
     .float3d-card:hover img { box-shadow: 0 40px 120px rgba(0,0,0,0.8), 0 0 80px rgba(201,169,110,0.15), 0 0 0 1px rgba(201,169,110,0.2), inset 0 0 60px rgba(201,169,110,0.05); filter: brightness(1.1); }
     .float3d-shine { position: absolute; inset: 0; border-radius: 6px; pointer-events: none; background: radial-gradient(circle at var(--shine-x, 50%) var(--shine-y, 50%), rgba(255,255,255,0.18) 0%, transparent 55%); opacity: 0; transition: opacity 0.4s; }
@@ -159,6 +158,7 @@
     .lb-info { position: absolute; bottom: 32px; left: 50%; transform: translateX(-50%); text-align: center; }
     .lb-title { font-family: var(--serif); font-size: 16px; }
     .lb-counter { font-size: 10px; color: var(--muted); letter-spacing: 4px; margin-top: 4px; }
+
     .lb-mute { position: absolute; top: 24px; left: 24px; background: none; border: 1px solid rgba(255,255,255,0.1); color: #fff; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
     .lb-mute:hover { background: rgba(255,255,255,0.1); }
     .lb-mute.muted { opacity: 0.4; }
@@ -248,11 +248,60 @@
       .float3d-section { min-height: 80vh; }
       .float3d-scene { padding: 100px 20px 60px; }
       .float3d-stage { height: 50vh; min-height: 350px; }
-      .float3d-card img { width: 160px !important; height: 210px !important; }
+      .float3d-card img { width: 160px; height: 210px; }
       .cube-wrap { display: none; } .lb-nav { display: none; }
       .cursor-glow { display: none; }
       .blog-list { padding: 40px 20px 80px; }
       .post-card-cover img { height: 200px; }
       .post-article { padding: 100px 20px 40px; }
       .post-body { font-size: 15px; }
+    }
+
+    /* Glitch transition overlay */
+    .glitch-overlay { position: fixed; inset: 0; z-index: 10000; pointer-events: none; opacity: 0; }
+    .glitch-overlay.active { animation: glitchFlash 0.8s ease-out forwards; }
+    .glitch-overlay::before { content: ''; position: absolute; inset: 0; background: var(--gold); mix-blend-mode: difference; }
+    .glitch-overlay::after { content: ''; position: absolute; inset: 0; background: #000; }
+    @keyframes glitchFlash {
+      0% { opacity: 1; }
+      10% { opacity: 0; }
+      15% { opacity: 1; }
+      20% { opacity: 0; }
+      25% { opacity: 0.8; }
+      30% { opacity: 0; }
+      40% { opacity: 0.6; }
+      50% { opacity: 0; }
+      100% { opacity: 0; }
+    }
+
+    /* Focus-visible for keyboard navigation */
+    .nav-link:focus-visible,
+    .filter-pill:focus-visible,
+    .post-card-link:focus-visible,
+    .post-back:focus-visible,
+    .h-more:focus-visible,
+    .lb-close:focus-visible,
+    .lb-nav:focus-visible,
+    .lb-mute:focus-visible {
+      outline: 2px solid var(--gold);
+      outline-offset: 2px;
+    }
+
+    /* Reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      .scroll-mouse::after { animation: none; }
+    }
+
+    /* Noscript fallback: make hidden content visible when JS fails */
+    .no-js .post-card,
+    .no-js .post-article,
+    .no-js .post-nav-link,
+    .no-js footer {
+      opacity: 1 !important;
+      transform: none !important;
     }
