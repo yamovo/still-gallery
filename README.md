@@ -2,6 +2,8 @@
 
 A cinematic image gallery with particle effects, scroll-driven animations, and a masonry layout. Drop images into the `images/` folder and they appear automatically.
 
+**Live demo:** [https://still-gallery.vercel.app](https://still-gallery.vercel.app)
+
 ## Features
 
 - **Auto-discovery** — just put images in `images/`, no config needed
